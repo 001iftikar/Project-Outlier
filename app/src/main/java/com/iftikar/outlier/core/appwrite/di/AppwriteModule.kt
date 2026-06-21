@@ -10,7 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.appwrite.Client
 import io.appwrite.services.Account
-import io.appwrite.services.Databases
+import io.appwrite.services.TablesDB
 import javax.inject.Singleton
 
 @Module
@@ -30,5 +30,5 @@ object AppwriteModule {
     }
     @Provides
     @Singleton
-    fun provideAppwriteDatabase(client: Client) = Databases(client)
+    fun provideAppwriteTablesDb(client: Client) = TablesDB(client)
 }

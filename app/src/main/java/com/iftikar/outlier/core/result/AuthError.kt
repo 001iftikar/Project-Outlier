@@ -7,5 +7,6 @@ enum class AuthError : Error {
     PASSWORD_MISMATCH,
     TOO_MANY_REQUESTS,
     REQUEST_TIMEOUT,
+    NO_INTERNET,
     UNKNOWN
 }
