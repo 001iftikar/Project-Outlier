@@ -16,13 +16,21 @@ class SessionManager @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
     private val EXPIRE = stringPreferencesKey("expire")
+    private val USER_ID = stringPreferencesKey("userId")
 
-    suspend fun saveSessionExpiry(expiry: String) {
+    /**
+     * Save userId and expire, expire to check session expiration and userId to avoid making network call everytime to get the userId
+     */
+    suspend fun saveSession(expiry: String, userId: String) {
         dataStore.edit { prefs ->
             prefs[EXPIRE] = expiry
+            prefs[USER_ID] = userId
         }
     }
 
+    /**
+     * Call on logout
+     */
     suspend fun clearSession() {
         dataStore.edit { prefs ->
             prefs.clear()
@@ -41,4 +49,18 @@ class SessionManager @Inject constructor(
             .first()
         return prefs[EXPIRE]
     }
+
+    suspend fun getUserId(): String? {
+        val prefs = dataStore.data
+            .catch { exception ->
+                if (exception is IOException) {
+                    emit(emptyPreferences())
+                } else {
+                    throw exception
+                }
+            }
+            .first()
+        return prefs[USER_ID]
+    }
+
 }

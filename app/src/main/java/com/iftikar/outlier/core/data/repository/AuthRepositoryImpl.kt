@@ -2,6 +2,7 @@ package com.iftikar.outlier.core.data.repository
 
 import com.iftikar.outlier.DATABASE_ID
 import com.iftikar.outlier.core.domain.repository.AuthRepository
+import com.iftikar.outlier.core.models.Session
 import com.iftikar.outlier.core.result.AuthError
 import com.iftikar.outlier.core.result.EmptyResult
 import com.iftikar.outlier.core.result.Result
@@ -23,7 +24,7 @@ class AuthRepositoryImpl @Inject constructor(
         email: String,
         password: String,
         username: String
-    ): Result<String, AuthError> = withContext(Dispatchers.IO) {
+    ): Result<Session, AuthError> = withContext(Dispatchers.IO) {
         try {
             val userExists = checkUserExists(username = username, email = email)
             if (userExists) return@withContext Result.Error(AuthError.USER_EXISTS)
@@ -36,7 +37,7 @@ class AuthRepositoryImpl @Inject constructor(
                 email = email,
                 password = password
             )
-            return@withContext Result.Success(session.expire)
+            return@withContext Result.Success(Session(userId = session.userId, expire = session.expire))
         } catch (e: AppwriteException) {
             val authError = when (e.code) {
                 409 -> AuthError.USER_EXISTS
@@ -60,6 +61,7 @@ class AuthRepositoryImpl @Inject constructor(
             return@withContext Result.Error(AuthError.NO_INTERNET)
         }
         catch (e: Exception) {
+            e.printStackTrace()
             return@withContext Result.Error(AuthError.UNKNOWN)
         }
     }
@@ -67,10 +69,10 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun login(
         email: String,
         password: String
-    ): Result<String, AuthError> = withContext(Dispatchers.IO) {
+    ): Result<Session, AuthError> = withContext(Dispatchers.IO) {
         try {
             val session = account.createEmailPasswordSession(email = email, password = password)
-            Result.Success(session.expire)
+            Result.Success(Session(userId = session.userId, expire = session.expire))
         } catch (e: AppwriteException) {
             val authError = when (e.code) {
                 409 -> AuthError.USER_EXISTS

@@ -42,8 +42,8 @@ class LoginViewModel @Inject constructor(
             authRepository.login(
                 email = _state.value.email,
                 password = _state.value.password
-            ).onSuccess { expire ->
-                sessionManager.saveSessionExpiry(expire)
+            ).onSuccess { session ->
+                sessionManager.saveSession(userId = session.userId, expiry = session.expire)
                 _state.update { it.copy(isLoading = false) }
                 _event.send(LoginScreenEvent.OnSuccess)
             }.onError { ex ->

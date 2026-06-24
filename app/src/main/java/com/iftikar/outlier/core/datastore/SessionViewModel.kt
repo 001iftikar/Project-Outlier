@@ -3,7 +3,6 @@ package com.iftikar.outlier.core.datastore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
-import com.iftikar.outlier.core.domain.repository.AuthRepository
 import com.iftikar.outlier.feature.auth.api.LoginNavKey
 import com.iftikar.outlier.feature.home.api.HomeNavKey
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +14,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SessionViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
     private val _startDestination = MutableStateFlow<NavKey?>(null)
@@ -43,6 +41,7 @@ class SessionViewModel @Inject constructor(
                     return@launch
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
                 _startDestination.value = LoginNavKey
                 return@launch
             }
