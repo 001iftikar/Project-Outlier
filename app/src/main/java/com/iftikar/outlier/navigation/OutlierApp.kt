@@ -6,9 +6,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,53 +38,49 @@ fun OutlierApp() {
         return
     }
     val backStack = rememberNavBackStack(startDestination!!)
-    Scaffold(
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
-        NavDisplay(
-            modifier = Modifier.padding(innerPadding),
-            backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
-            ),
-            entryProvider = entryProvider {
-                registerEntry(backStack)
-                createUserEntry(backStack)
-                loginEntry(backStack)
-                homeEntry()
-            },
-            transitionSpec = {
-                // Slide in from right when navigating forward
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(500)
-                ) togetherWith slideOutHorizontally(
-                    targetOffsetX = { -it },
-                    animationSpec = tween(500)
-                )
-            },
-            popTransitionSpec = {
-                // Slide in from left when navigating back
-                slideInHorizontally(
-                    initialOffsetX = { -it },
-                    animationSpec = tween(500)
-                ) togetherWith slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(500)
-                )
-            },
-            predictivePopTransitionSpec = {
-                // Slide in from left when navigating back
-                slideInHorizontally(
-                    initialOffsetX = { -it },
-                    animationSpec = tween(500)
-                ) togetherWith slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(500)
-                )
-            }
-        )
-    }
+
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider = entryProvider {
+            registerEntry(backStack)
+            createUserEntry(backStack)
+            loginEntry(backStack)
+            homeEntry()
+        },
+        transitionSpec = {
+            // Slide in from right when navigating forward
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(500)
+            ) togetherWith slideOutHorizontally(
+                targetOffsetX = { -it },
+                animationSpec = tween(500)
+            )
+        },
+        popTransitionSpec = {
+            // Slide in from left when navigating back
+            slideInHorizontally(
+                initialOffsetX = { -it },
+                animationSpec = tween(500)
+            ) togetherWith slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(500)
+            )
+        },
+        predictivePopTransitionSpec = {
+            // Slide in from left when navigating back
+            slideInHorizontally(
+                initialOffsetX = { -it },
+                animationSpec = tween(500)
+            ) togetherWith slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(500)
+            )
+        }
+    )
 }

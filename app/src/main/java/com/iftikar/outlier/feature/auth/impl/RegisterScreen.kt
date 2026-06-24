@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,92 +58,100 @@ fun RegisterScreen(
             }
         }
     }
-    GradientBackground {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.85f)
-                .clip(RoundedCornerShape(24.dp))
-                .background(Color(0xFF18181B).copy(alpha = 0.4f))
-                .border(
-                    width = 1.dp,
-                    color = Color.White.copy(alpha = 0.05f),
-                    shape = RoundedCornerShape(24.dp)
-                )
-                .padding(32.dp),
-            contentAlignment = Alignment.Center
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { innerPadding ->
+        GradientBackground(
+            modifier = Modifier.padding(innerPadding)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Color(0xFF18181B).copy(alpha = 0.4f))
+                    .border(
+                        width = 1.dp,
+                        color = Color.White.copy(alpha = 0.05f),
+                        shape = RoundedCornerShape(24.dp)
+                    )
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
             ) {
-                TextFieldComponent(
-                    value = state.username,
-                    label = "Username (required)",
-                    onValueChange = { action(RegisterScreenAction.OnUsernameChange(it)) },
-                    supportingText = state.usernameError
-                )
-                TextFieldComponent(
-                    value = state.email,
-                    label = "Email (required)",
-                    onValueChange = { action(RegisterScreenAction.OnEmailChange(it)) },
-                    supportingText = state.emailError
-                )
-                TextFieldComponent(
-                    value = state.password,
-                    label = "Password (required)",
-                    onValueChange = { action(RegisterScreenAction.OnPasswordChange(it)) },
-                    supportingText = state.passwordError,
-                    visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {action(RegisterScreenAction.OnPasswordEyeClick)}
-                        ) {
-                            Icon(
-                                imageVector = if (state.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+                ) {
+                    TextFieldComponent(
+                        value = state.username,
+                        label = "Username (required)",
+                        onValueChange = { action(RegisterScreenAction.OnUsernameChange(it)) },
+                        supportingText = state.usernameError
+                    )
+                    TextFieldComponent(
+                        value = state.email,
+                        label = "Email (required)",
+                        onValueChange = { action(RegisterScreenAction.OnEmailChange(it)) },
+                        supportingText = state.emailError
+                    )
+                    TextFieldComponent(
+                        value = state.password,
+                        label = "Password (required)",
+                        onValueChange = { action(RegisterScreenAction.OnPasswordChange(it)) },
+                        supportingText = state.passwordError,
+                        visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {action(RegisterScreenAction.OnPasswordEyeClick)}
+                            ) {
+                                Icon(
+                                    imageVector = if (state.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    )
+
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column {
+                            CheckboxComponent(
+                                text = "I am a developer ${state.isRoleRequiredText}",
+                                checked = state.isDevChecked,
+                                onCheckedChange = { action(RegisterScreenAction.OnIsDevChecked(it)) }
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            CheckboxComponent(
+                                text = "I am a recruiter ${state.isRoleRequiredText}",
+                                checked = state.isRecruiterChecked,
+                                onCheckedChange = { action(RegisterScreenAction.OnIsRecruiterChecked(it)) }
                             )
                         }
                     }
-                )
-
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column {
-                        CheckboxComponent(
-                            text = "I am a developer ${state.isRoleRequiredText}",
-                            checked = state.isDevChecked,
-                            onCheckedChange = { action(RegisterScreenAction.OnIsDevChecked(it)) }
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        CheckboxComponent(
-                            text = "I am a recruiter ${state.isRoleRequiredText}",
-                            checked = state.isRecruiterChecked,
-                            onCheckedChange = { action(RegisterScreenAction.OnIsRecruiterChecked(it)) }
+                    Button(
+                        onClick = {action(RegisterScreenAction.OnRegisterClick)},
+                        enabled = state.isRegisterButtonEnabled
+                    ) {
+                        Text(
+                            text = state.buttonText
                         )
                     }
-                }
-                Button(
-                    onClick = {action(RegisterScreenAction.OnRegisterClick)},
-                    enabled = state.isRegisterButtonEnabled
-                ) {
-                    Text(
-                        text = state.buttonText
-                    )
-                }
 
-                TextButton(
-                    onClick = onAlreadyUserClick
-                ) {
-                    Text(
-                        text = "Already a user"
-                    )
+                    TextButton(
+                        onClick = onAlreadyUserClick
+                    ) {
+                        Text(
+                            text = "Already a user"
+                        )
+                    }
                 }
             }
         }
     }
+
 }
 
 

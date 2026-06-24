@@ -18,10 +18,11 @@ import com.iftikar.outlier.core.designsystem.theme.premiumVerticalGradient
 
 @Composable
 fun GradientBackground(
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(brush = premiumVerticalGradient),
         contentAlignment = Alignment.Center

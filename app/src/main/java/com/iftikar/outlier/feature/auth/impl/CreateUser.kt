@@ -3,11 +3,14 @@ package com.iftikar.outlier.feature.auth.impl
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +40,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * This creates the user in database after successful registration
+ */
 @Composable
 fun CreateUserScreen(
     viewModel: CreateUserViewModel, onSuccess: () -> Unit
@@ -50,25 +56,30 @@ fun CreateUserScreen(
             }
         }
     }
-    GradientBackground {
-        if (state.isLoading) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    "Setting up your ${viewModel.args.role.lowercase()} account",
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-        }
 
-        if (state.error != null) {
-            Button(
-                onClick = { viewModel.createUser() }) {
-                Text("Try again")
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { innerPadding ->
+        GradientBackground(modifier = Modifier.padding(innerPadding)) {
+            if (state.isLoading) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        "Setting up your ${viewModel.args.role.lowercase()} account",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
+
+            if (state.error != null) {
+                Button(
+                    onClick = { viewModel.createUser() }) {
+                    Text("Try again")
+                }
             }
         }
     }
