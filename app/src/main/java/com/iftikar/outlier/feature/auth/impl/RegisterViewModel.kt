@@ -57,16 +57,18 @@ class RegisterViewModel @Inject constructor(
                 email = _state.value.email,
                 password = _state.value.password,
                 username = _state.value.username
-            ).onSuccess {expire ->
+            ).onSuccess { session ->
                 _state.update { it.copy(isLoading = false) }
-                sessionManager.saveSessionExpiry(expire)
-                _event.send(RegisterScreenEvent.OnSuccess(
-                    username = _state.value.username,
-                    email = _state.value.email,
-                    role = _state.value.role
-                ))
+                sessionManager.saveSession(userId = session.userId, expiry = session.expire)
+                _event.send(
+                    RegisterScreenEvent.OnSuccess(
+                        username = _state.value.username,
+                        email = _state.value.email,
+                        role = _state.value.role
+                    )
+                )
             }.onError { ex ->
-                when(ex) {
+                when (ex) {
                     AuthError.USER_EXISTS -> setError("User already exists with the same username or email")
                     AuthError.INVALID_EMAIL -> setError("Invalid email")
                     AuthError.AUTH_FAILED -> setError("Authentication failed")
