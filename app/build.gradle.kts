@@ -36,6 +36,8 @@ android {
 }
 
 dependencies {
+    // Metadata
+    ksp(libs.kotlin.metadata.jvm)
     implementation(libs.sdk.for1.android)
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
@@ -48,6 +50,9 @@ dependencies {
     implementation(libs.androidx.material3.adaptive.navigation3)
     // data store
     implementation(libs.androidx.datastore.preferences)
+    // Coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.activity.compose)

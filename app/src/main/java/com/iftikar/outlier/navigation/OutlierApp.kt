@@ -23,6 +23,8 @@ import com.iftikar.outlier.feature.auth.impl.navigation.createUserEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.loginEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.registerEntry
 import com.iftikar.outlier.feature.home.impl.navigation.homeEntry
+import com.iftikar.outlier.feature.inbox.impl.navigation.inboxEntry
+import com.iftikar.outlier.feature.post.impl.navigation.postEntry
 
 @Composable
 fun OutlierApp() {
@@ -50,7 +52,9 @@ fun OutlierApp() {
             registerEntry(backStack)
             createUserEntry(backStack)
             loginEntry(backStack)
-            homeEntry()
+            homeEntry(backStack)
+            inboxEntry()
+            postEntry()
         },
         transitionSpec = {
             // Slide in from right when navigating forward
