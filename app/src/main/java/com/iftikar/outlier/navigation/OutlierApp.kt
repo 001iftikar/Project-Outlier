@@ -20,6 +20,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.iftikar.outlier.core.datastore.SessionViewModel
 import com.iftikar.outlier.feature.auth.impl.navigation.createUserEntry
+import com.iftikar.outlier.feature.auth.impl.navigation.emailVerificationEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.loginEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.registerEntry
 import com.iftikar.outlier.feature.home.impl.navigation.homeEntry
@@ -37,54 +38,55 @@ fun OutlierApp() {
         ) {
             CircularProgressIndicator()
         }
-        return
-    }
-    val backStack = rememberNavBackStack(startDestination!!)
+    } else {
+        val backStack = rememberNavBackStack(startDestination!!)
 
-    NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        ),
-        entryProvider = entryProvider {
-            registerEntry(backStack)
-            createUserEntry(backStack)
-            loginEntry(backStack)
-            homeEntry(backStack)
-            inboxEntry()
-            postEntry()
-        },
-        transitionSpec = {
-            // Slide in from right when navigating forward
-            slideInHorizontally(
-                initialOffsetX = { it },
-                animationSpec = tween(500)
-            ) togetherWith slideOutHorizontally(
-                targetOffsetX = { -it },
-                animationSpec = tween(500)
-            )
-        },
-        popTransitionSpec = {
-            // Slide in from left when navigating back
-            slideInHorizontally(
-                initialOffsetX = { -it },
-                animationSpec = tween(500)
-            ) togetherWith slideOutHorizontally(
-                targetOffsetX = { it },
-                animationSpec = tween(500)
-            )
-        },
-        predictivePopTransitionSpec = {
-            // Slide in from left when navigating back
-            slideInHorizontally(
-                initialOffsetX = { -it },
-                animationSpec = tween(500)
-            ) togetherWith slideOutHorizontally(
-                targetOffsetX = { it },
-                animationSpec = tween(500)
-            )
-        }
-    )
+        NavDisplay(
+            backStack = backStack,
+            onBack = { backStack.removeLastOrNull() },
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                emailVerificationEntry(backStack)
+                registerEntry(backStack)
+                createUserEntry(backStack)
+                loginEntry(backStack)
+                homeEntry(backStack)
+                inboxEntry()
+                postEntry()
+            },
+            transitionSpec = {
+                // Slide in from right when navigating forward
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(500)
+                ) togetherWith slideOutHorizontally(
+                    targetOffsetX = { -it },
+                    animationSpec = tween(500)
+                )
+            },
+            popTransitionSpec = {
+                // Slide in from left when navigating back
+                slideInHorizontally(
+                    initialOffsetX = { -it },
+                    animationSpec = tween(500)
+                ) togetherWith slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(500)
+                )
+            },
+            predictivePopTransitionSpec = {
+                // Slide in from left when navigating back
+                slideInHorizontally(
+                    initialOffsetX = { -it },
+                    animationSpec = tween(500)
+                ) togetherWith slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(500)
+                )
+            }
+        )
+    }
 }

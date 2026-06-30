@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
+import com.descope.Descope
 import com.iftikar.outlier.core.designsystem.theme.LocalSpacing
 import com.iftikar.outlier.feature.home.components.drawer.DrawerContent
 import com.iftikar.outlier.feature.home.components.bars.HomeTopBar

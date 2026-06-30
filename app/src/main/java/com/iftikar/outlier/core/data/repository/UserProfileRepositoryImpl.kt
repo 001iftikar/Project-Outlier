@@ -2,7 +2,6 @@ package com.iftikar.outlier.core.data.repository
 
 import com.iftikar.outlier.DATABASE_ID
 import com.iftikar.outlier.core.domain.repository.UserProfileRepository
-import com.iftikar.outlier.core.result.AuthError
 import com.iftikar.outlier.core.result.CreateUserError
 import com.iftikar.outlier.core.result.EmptyResult
 import com.iftikar.outlier.core.result.Result
@@ -22,7 +21,7 @@ class UserProfileRepositoryImpl @Inject constructor(
     private val tablesDB: TablesDB
 ) : UserProfileRepository {
     override suspend fun createUser(
-        username: String,
+        name: String,
         email: String,
         role: String
     ): EmptyResult<CreateUserError> = withContext(Dispatchers.IO) {
@@ -33,7 +32,7 @@ class UserProfileRepositoryImpl @Inject constructor(
                 tableId = "users",
                 rowId = userId,
                 data = mapOf(
-                    "username" to username,
+                    "name" to name,
                     "email" to email,
                     "role" to role
                 ),

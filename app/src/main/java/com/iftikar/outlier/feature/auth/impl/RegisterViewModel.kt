@@ -7,6 +7,10 @@ import com.iftikar.outlier.core.domain.repository.AuthRepository
 import com.iftikar.outlier.core.result.AuthError
 import com.iftikar.outlier.core.result.onError
 import com.iftikar.outlier.core.result.onSuccess
+import com.iftikar.outlier.feature.auth.api.RegisterNavKey
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,21 +18,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class RegisterViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = RegisterViewModel.Factory::class)
+class RegisterViewModel @AssistedInject constructor(
     private val authRepository: AuthRepository,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    @Assisted val args: RegisterNavKey
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: RegisterNavKey): RegisterViewModel
+    }
     private val _state = MutableStateFlow(RegisterScreenState())
     val state = _state.asStateFlow()
 
     private val _event = Channel<RegisterScreenEvent>()
     val event = _event.receiveAsFlow()
+
     fun onAction(action: RegisterScreenAction) {
         when (action) {
-            is RegisterScreenAction.OnEmailChange -> _state.update { it.copy(email = action.email.trim()) }
             is RegisterScreenAction.OnIsDevChecked -> _state.update {
                 it.copy(
                     isDevChecked = action.checked,
@@ -44,7 +52,7 @@ class RegisterViewModel @Inject constructor(
             }
 
             is RegisterScreenAction.OnPasswordChange -> _state.update { it.copy(password = action.password) }
-            is RegisterScreenAction.OnUsernameChange -> _state.update { it.copy(username = action.username.trim()) }
+            is RegisterScreenAction.OnNameChange -> _state.update { it.copy(name = action.username.trim()) }
             RegisterScreenAction.OnRegisterClick -> register()
             RegisterScreenAction.OnPasswordEyeClick -> _state.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
         }
@@ -54,16 +62,15 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             authRepository.register(
-                email = _state.value.email,
-                password = _state.value.password,
-                username = _state.value.username
+                email = args.email,
+                password = _state.value.password
             ).onSuccess { session ->
                 _state.update { it.copy(isLoading = false) }
                 sessionManager.saveSession(userId = session.userId, expiry = session.expire)
                 _event.send(
                     RegisterScreenEvent.OnSuccess(
-                        username = _state.value.username,
-                        email = _state.value.email,
+                        username = _state.value.name,
+                        email = args.email,
                         role = _state.value.role
                     )
                 )

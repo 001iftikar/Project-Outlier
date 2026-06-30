@@ -107,7 +107,7 @@ class CreateUserViewModel @AssistedInject constructor(
         viewModelScope.launch {
             _state.update { it.copy(error = null, isLoading = true) }
             userProfileRepository.createUser(
-                username = args.username, email = args.email, role = args.role
+                name = args.username, email = args.email, role = args.role
             ).onSuccess {
                 delay(2000L.milliseconds)
                 _state.update { it.copy(isLoading = false) }

@@ -1,7 +1,7 @@
-package com.iftikar.outlier.feature.inbox.api
+package com.iftikar.outlier.feature.auth.api
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-object InboxNavKey : NavKey
+object EmailVerifyNavKey : NavKey

@@ -20,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,7 +40,6 @@ import com.iftikar.outlier.feature.auth.component.GradientBackground
 fun RegisterScreen(
     viewModel: RegisterViewModel,
     onSuccess: (String, String, String) -> Unit, // username, email, role
-    onAlreadyUserClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val action = viewModel::onAction
@@ -84,16 +82,10 @@ fun RegisterScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
                 ) {
                     TextFieldComponent(
-                        value = state.username,
-                        label = "Username (required)",
-                        onValueChange = { action(RegisterScreenAction.OnUsernameChange(it)) },
-                        supportingText = state.usernameError
-                    )
-                    TextFieldComponent(
-                        value = state.email,
-                        label = "Email (required)",
-                        onValueChange = { action(RegisterScreenAction.OnEmailChange(it)) },
-                        supportingText = state.emailError
+                        value = state.name,
+                        label = "Name (required)",
+                        onValueChange = { action(RegisterScreenAction.OnNameChange(it)) },
+                        supportingText = state.name
                     )
                     TextFieldComponent(
                         value = state.password,
@@ -139,19 +131,10 @@ fun RegisterScreen(
                             text = state.buttonText
                         )
                     }
-
-                    TextButton(
-                        onClick = onAlreadyUserClick
-                    ) {
-                        Text(
-                            text = "Already a user"
-                        )
-                    }
                 }
             }
         }
     }
-
 }
 
 

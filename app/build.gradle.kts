@@ -50,6 +50,8 @@ dependencies {
     implementation(libs.androidx.material3.adaptive.navigation3)
     // data store
     implementation(libs.androidx.datastore.preferences)
+    // Descope
+    implementation(libs.descope.kotlin)
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
