@@ -15,14 +15,11 @@ fun EntryProviderScope<NavKey>.emailVerificationEntry(
 ) {
     entry<EmailVerifyNavKey> {
         val viewModel = hiltViewModel<EmailVerificationViewModel>()
-        EmailVerificationScreen(
-            viewModel = viewModel,
-            onAlreadyUserClick = {
-                backStack.clear()
-                backStack.add(LoginNavKey)
-            },
-            onSuccess = { email ->
-                backStack.add(RegisterNavKey(email))
-            })
+        EmailVerificationScreen(viewModel = viewModel, onAlreadyUserClick = {
+            backStack.clear()
+            backStack.add(LoginNavKey)
+        }, onSuccess = { email ->
+            backStack.add(RegisterNavKey(email))
+        })
     }
 }

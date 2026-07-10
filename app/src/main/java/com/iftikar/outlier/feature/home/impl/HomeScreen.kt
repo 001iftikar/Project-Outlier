@@ -4,13 +4,17 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.DismissibleNavigationDrawer
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -75,6 +79,7 @@ fun HomeScreen(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ),
+            contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.statusBars),
             topBar = {
                 HomeTopBar(
                     drawerState = drawerState,
@@ -90,9 +95,9 @@ fun HomeScreen(
             }) { innerPadding ->
             LazyColumn(
                 modifier = Modifier
-                    .padding(innerPadding)
                     .padding(horizontal = spacing.horizontalPadding),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+                contentPadding = innerPadding
             ) {
                 items(5) {
                     PostComponent()

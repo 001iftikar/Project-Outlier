@@ -60,7 +60,7 @@ class EmailVerificationViewModel @Inject constructor(
                 }
             }.onError { ex ->
                 _state.update {
-                    it.copy(isSendingOtp = true)
+                    it.copy(isSendingOtp = false)
                 }
                 when (ex) {
                     DescopeError.NO_INTERNET -> {

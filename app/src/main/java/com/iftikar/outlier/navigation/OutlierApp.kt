@@ -19,10 +19,13 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.iftikar.outlier.core.datastore.SessionViewModel
+import com.iftikar.outlier.feature.auth.api.EmailVerifyNavKey
+import com.iftikar.outlier.feature.auth.api.LoginNavKey
 import com.iftikar.outlier.feature.auth.impl.navigation.createUserEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.emailVerificationEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.loginEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.registerEntry
+import com.iftikar.outlier.feature.home.api.HomeNavKey
 import com.iftikar.outlier.feature.home.impl.navigation.homeEntry
 import com.iftikar.outlier.feature.inbox.impl.navigation.inboxEntry
 import com.iftikar.outlier.feature.post.impl.navigation.postEntry
@@ -39,7 +42,7 @@ fun OutlierApp() {
             CircularProgressIndicator()
         }
     } else {
-        val backStack = rememberNavBackStack(startDestination!!)
+        val backStack = rememberNavBackStack(LoginNavKey)
 
         NavDisplay(
             backStack = backStack,

@@ -19,16 +19,17 @@ fun EntryProviderScope<NavKey>.registerEntry(
             }
         )
         RegisterScreen(
-            viewModel = viewModel
-        ) { username, email, role ->
-            backStack.clear()
-            backStack.add(
-                CreateUserNavKey(
-                    username = username,
-                    email = email,
-                    role = role
+            viewModel = viewModel,
+            onSuccess = { name, email, role ->
+                backStack.clear()
+                backStack.add(
+                    CreateUserNavKey(
+                        name = name,
+                        email = email,
+                        role = role
+                    )
                 )
-            )
-        }
+            }
+        )
     }
 }

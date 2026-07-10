@@ -30,9 +30,10 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun sendOtp(email: String): Result<String, DescopeError> =
         withContext(Dispatchers.IO) {
             try {
-                val maskedEmail = Descope.otp.signUp(method = DeliveryMethod.Email, loginId = email)
+                val maskedEmail = Descope.otp.signUpOrIn(method = DeliveryMethod.Email, loginId = email)
                 Result.Success(maskedEmail)
             } catch (ex: DescopeException) {
+                ex.printStackTrace()
                 if (ex.cause is UnknownHostException) {
                     Result.Error(DescopeError.NO_INTERNET)
                 } else {

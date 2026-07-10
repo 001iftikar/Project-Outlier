@@ -39,7 +39,7 @@ import com.iftikar.outlier.feature.auth.component.GradientBackground
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel,
-    onSuccess: (String, String, String) -> Unit, // username, email, role
+    onSuccess: (String, String, String) -> Unit, // name, email, role
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val action = viewModel::onAction
@@ -47,7 +47,7 @@ fun RegisterScreen(
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when(event) {
-                is RegisterScreenEvent.OnSuccess -> onSuccess(event.username, event.email, event.role.name)
+                is RegisterScreenEvent.OnSuccess -> onSuccess(event.name, event.email, event.role.name)
                 is RegisterScreenEvent.OnError -> {
                     Toast
                         .makeText(context, event.error, Toast.LENGTH_LONG)
@@ -85,7 +85,7 @@ fun RegisterScreen(
                         value = state.name,
                         label = "Name (required)",
                         onValueChange = { action(RegisterScreenAction.OnNameChange(it)) },
-                        supportingText = state.name
+                        supportingText = if (state.name.length < 3 && state.name.isNotEmpty()) "Name must be of 3 characters" else null
                     )
                     TextFieldComponent(
                         value = state.password,

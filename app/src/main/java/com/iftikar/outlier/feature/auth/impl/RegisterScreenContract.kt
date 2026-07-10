@@ -1,5 +1,7 @@
 package com.iftikar.outlier.feature.auth.impl
 
+import android.util.Patterns
+
 data class RegisterScreenState(
     val name: String = "",
     val password: String = "",
@@ -14,18 +16,13 @@ data class RegisterScreenState(
 
     private val isRoleSelected: Boolean
         get() = isDevChecked || isRecruiterChecked
-
     val passwordError: String?
         get() = if (password.isNotEmpty() && !isPasswordValid) "Password must be at least 8 characters" else null
 
     val isRoleRequiredText: String
         get() = if (!isRoleSelected) "(required)" else ""
     val isRegisterButtonEnabled: Boolean
-        get() =
-            isPasswordValid &&
-                    name.length >= 3 &&
-                    isRoleSelected &&
-                    !isLoading
+        get() = isPasswordValid && name.length >= 3 && isRoleSelected && !isLoading
     val buttonText: String
         get() = when {
             isLoading -> "Registering"
@@ -38,7 +35,7 @@ data class RegisterScreenState(
 }
 
 sealed interface RegisterScreenAction {
-    data class OnNameChange(val username: String) : RegisterScreenAction
+    data class OnNameChange(val name: String) : RegisterScreenAction
     data class OnPasswordChange(val password: String) : RegisterScreenAction
     data class OnIsDevChecked(val checked: Boolean) : RegisterScreenAction
     data class OnIsRecruiterChecked(val checked: Boolean) : RegisterScreenAction
@@ -47,8 +44,7 @@ sealed interface RegisterScreenAction {
 }
 
 sealed interface RegisterScreenEvent {
-    data class OnSuccess(val username: String, val email: String, val role: Role) :
-        RegisterScreenEvent
+    data class OnSuccess(val name: String, val email: String, val role: Role) : RegisterScreenEvent
 
     data class OnError(val error: String) : RegisterScreenEvent
 }

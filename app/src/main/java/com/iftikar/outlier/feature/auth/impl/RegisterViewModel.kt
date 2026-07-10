@@ -52,7 +52,7 @@ class RegisterViewModel @AssistedInject constructor(
             }
 
             is RegisterScreenAction.OnPasswordChange -> _state.update { it.copy(password = action.password) }
-            is RegisterScreenAction.OnNameChange -> _state.update { it.copy(name = action.username.trim()) }
+            is RegisterScreenAction.OnNameChange -> _state.update { it.copy(name = action.name) }
             RegisterScreenAction.OnRegisterClick -> register()
             RegisterScreenAction.OnPasswordEyeClick -> _state.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
         }
@@ -69,7 +69,7 @@ class RegisterViewModel @AssistedInject constructor(
                 sessionManager.saveSession(userId = session.userId, expiry = session.expire)
                 _event.send(
                     RegisterScreenEvent.OnSuccess(
-                        username = _state.value.name,
+                        name = _state.value.name,
                         email = args.email,
                         role = _state.value.role
                     )
