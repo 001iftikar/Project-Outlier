@@ -21,13 +21,15 @@ fun TextFieldComponent(
     onValueChange: (String) -> Unit,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    singleLine: Boolean = true,
+    minLines: Int = 1
 ) {
     OutlinedTextField(
         modifier = modifier,
         value = value,
         onValueChange = { onValueChange(it) },
-        label = { Text(text = label, style = MaterialTheme.typography.bodySmall) },
+        label = { Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground.copy(0.7f)) },
         trailingIcon = { trailingIcon?.invoke() },
         shape = RoundedCornerShape(25.dp),
         visualTransformation = visualTransformation,
@@ -48,6 +50,7 @@ fun TextFieldComponent(
             null
         },
         keyboardOptions = keyboardOptions,
-        singleLine = true
+        singleLine = singleLine,
+        minLines = minLines
     )
 }

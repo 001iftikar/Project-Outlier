@@ -42,7 +42,7 @@ fun OutlierApp() {
             CircularProgressIndicator()
         }
     } else {
-        val backStack = rememberNavBackStack(LoginNavKey)
+        val backStack = rememberNavBackStack(startDestination ?: LoginNavKey)
 
         NavDisplay(
             backStack = backStack,
