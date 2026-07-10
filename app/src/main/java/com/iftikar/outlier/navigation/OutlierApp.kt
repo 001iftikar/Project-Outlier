@@ -6,9 +6,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,10 +19,16 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.iftikar.outlier.core.datastore.SessionViewModel
+import com.iftikar.outlier.feature.auth.api.EmailVerifyNavKey
+import com.iftikar.outlier.feature.auth.api.LoginNavKey
 import com.iftikar.outlier.feature.auth.impl.navigation.createUserEntry
+import com.iftikar.outlier.feature.auth.impl.navigation.emailVerificationEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.loginEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.registerEntry
+import com.iftikar.outlier.feature.home.api.HomeNavKey
 import com.iftikar.outlier.feature.home.impl.navigation.homeEntry
+import com.iftikar.outlier.feature.inbox.impl.navigation.inboxEntry
+import com.iftikar.outlier.feature.post.impl.navigation.postEntry
 
 @Composable
 fun OutlierApp() {
@@ -37,14 +41,10 @@ fun OutlierApp() {
         ) {
             CircularProgressIndicator()
         }
-        return
-    }
-    val backStack = rememberNavBackStack(startDestination!!)
-    Scaffold(
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
+    } else {
+        val backStack = rememberNavBackStack(LoginNavKey)
+
         NavDisplay(
-            modifier = Modifier.padding(innerPadding),
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
             entryDecorators = listOf(
@@ -52,10 +52,13 @@ fun OutlierApp() {
                 rememberViewModelStoreNavEntryDecorator()
             ),
             entryProvider = entryProvider {
+                emailVerificationEntry(backStack)
                 registerEntry(backStack)
                 createUserEntry(backStack)
                 loginEntry(backStack)
-                homeEntry()
+                homeEntry(backStack)
+                inboxEntry()
+                postEntry()
             },
             transitionSpec = {
                 // Slide in from right when navigating forward
