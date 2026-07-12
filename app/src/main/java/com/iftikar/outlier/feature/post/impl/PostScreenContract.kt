@@ -17,7 +17,7 @@ data class PostScreenState (
     val buttonText: String
         get() = if (!isPosting) "Publish" else "Posting"
     val buttonEnabled: Boolean
-        get() = title.isNotEmpty() && description.isNotEmpty() && selectedImages.isNotEmpty() && techStack.isNotEmpty() && (githubUrl.isNotEmpty() || liveProjectUrl.isNotEmpty())
+        get() = title.isNotEmpty() && description.isNotEmpty() && selectedImages.isNotEmpty() && techStack.isNotEmpty() && (githubUrl.isNotEmpty() || liveProjectUrl.isNotEmpty()) && !isPosting
 }
 
 sealed interface PostScreenAction {

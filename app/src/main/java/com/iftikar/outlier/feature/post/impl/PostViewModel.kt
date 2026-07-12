@@ -1,5 +1,6 @@
 package com.iftikar.outlier.feature.post.impl
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iftikar.outlier.core.datastore.SessionManager
@@ -11,11 +12,12 @@ import com.iftikar.outlier.core.result.onError
 import com.iftikar.outlier.core.result.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -77,7 +79,8 @@ class PostViewModel @Inject constructor(
             _state.update { it.copy(isPosting = true) }
             try {
                 val userId = sessionManager.getUserId()
-                if (userId == null) {
+                val currentUserName = sessionManager.getUserName()
+                if (userId == null || currentUserName == null) {
                     _event.send(PostScreenEvent.OnError("Session is expired, please log in and try again"))
                     return@launch
                 }
@@ -91,7 +94,8 @@ class PostViewModel @Inject constructor(
                     techStack = currentState.techStack,
                     githubUrl = currentState.githubUrl,
                     liveUrl = currentState.liveProjectUrl,
-                    tags = currentState.tags
+                    tags = currentState.tags,
+                    userName =currentUserName
                 )
                 postRepository.createPost(post, userId = userId).onSuccess {
                     _state.update { it.copy(isPosting = false) }

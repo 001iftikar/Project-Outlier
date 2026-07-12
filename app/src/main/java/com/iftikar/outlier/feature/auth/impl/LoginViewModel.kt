@@ -43,7 +43,7 @@ class LoginViewModel @Inject constructor(
                 email = _state.value.email,
                 password = _state.value.password
             ).onSuccess { session ->
-                sessionManager.saveSession(userId = session.userId, expiry = session.expire)
+                sessionManager.saveSession(userId = session.userId, expiry = session.expire, userName = session.userName, role = session.role)
                 _state.update { it.copy(isLoading = false) }
                 _event.send(LoginScreenEvent.OnSuccess)
             }.onError { ex ->

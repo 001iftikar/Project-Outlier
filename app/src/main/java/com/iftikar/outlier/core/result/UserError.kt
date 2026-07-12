@@ -1,6 +1,6 @@
 package com.iftikar.outlier.core.result
 
-enum class CreateUserError : Error {
+enum class UserError : Error {
     NO_INTERNET,
     NOT_AUTHORIZED,
     UNKNOWN

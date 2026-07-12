@@ -2,6 +2,7 @@ package com.iftikar.outlier.core.models
 
 data class Post(
     val userId: String,
+    val userName: String,
     val title: String,
     val description: String,
     val images: List<String>,

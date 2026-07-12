@@ -9,7 +9,7 @@ import com.iftikar.outlier.core.result.Result
 interface AuthRepository {
     suspend fun sendOtp(email: String): Result<String, DescopeError>
     suspend fun verifyOtp(email: String, code: String): Result<String, DescopeError>
-    suspend fun register(email: String, password: String) : Result<Session, AuthError>
+    suspend fun register(email: String, password: String, name: String, role: String) : Result<Session, AuthError>
     suspend fun login(email: String, password: String): Result<Session, AuthError>
     suspend fun logout(): EmptyResult<AuthError>
 }

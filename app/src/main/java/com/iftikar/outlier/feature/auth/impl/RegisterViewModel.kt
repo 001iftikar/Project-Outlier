@@ -63,10 +63,12 @@ class RegisterViewModel @AssistedInject constructor(
             _state.update { it.copy(isLoading = true, error = null) }
             authRepository.register(
                 email = args.email,
-                password = _state.value.password
+                password = _state.value.password,
+                name = _state.value.name,
+                role = _state.value.role.name
             ).onSuccess { session ->
                 _state.update { it.copy(isLoading = false) }
-                sessionManager.saveSession(userId = session.userId, expiry = session.expire)
+                sessionManager.saveSession(userId = session.userId, expiry = session.expire, userName = session.userName, role = session.role)
                 _event.send(
                     RegisterScreenEvent.OnSuccess(
                         name = _state.value.name,

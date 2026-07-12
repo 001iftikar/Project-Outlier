@@ -2,7 +2,8 @@ package com.iftikar.outlier.core.data.repository
 
 import com.iftikar.outlier.DATABASE_ID
 import com.iftikar.outlier.core.domain.repository.UserProfileRepository
-import com.iftikar.outlier.core.result.CreateUserError
+import com.iftikar.outlier.core.models.User
+import com.iftikar.outlier.core.result.UserError
 import com.iftikar.outlier.core.result.EmptyResult
 import com.iftikar.outlier.core.result.Result
 import io.appwrite.Permission
@@ -24,7 +25,7 @@ class UserProfileRepositoryImpl @Inject constructor(
         name: String,
         email: String,
         role: String
-    ): EmptyResult<CreateUserError> = withContext(Dispatchers.IO) {
+    ): EmptyResult<UserError> = withContext(Dispatchers.IO) {
         try {
             val userId = account.get().id
             tablesDB.createRow(
@@ -45,15 +46,15 @@ class UserProfileRepositoryImpl @Inject constructor(
         } catch (ex: AppwriteException) {
             ex.printStackTrace()
             val error = when(ex.code){
-                401 -> CreateUserError.NOT_AUTHORIZED
-                else -> CreateUserError.UNKNOWN
+                401 -> UserError.NOT_AUTHORIZED
+                else -> UserError.UNKNOWN
             }
             return@withContext Result.Error(error)
         } catch (e: IOException) {
-            return@withContext Result.Error(CreateUserError.NO_INTERNET)
+            return@withContext Result.Error(UserError.NO_INTERNET)
         }
         catch (e: Exception) {
-            return@withContext Result.Error(CreateUserError.UNKNOWN)
+            return@withContext Result.Error(UserError.UNKNOWN)
         }
     }
 }

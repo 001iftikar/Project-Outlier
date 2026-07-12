@@ -5,6 +5,7 @@ import com.descope.session.DescopeSession
 import com.descope.types.DeliveryMethod
 import com.descope.types.DescopeException
 import com.iftikar.outlier.DATABASE_ID
+import com.iftikar.outlier.core.appwrite.model.UserDto
 import com.iftikar.outlier.core.domain.repository.AuthRepository
 import com.iftikar.outlier.core.models.Session
 import com.iftikar.outlier.core.result.AuthError
@@ -18,6 +19,7 @@ import io.appwrite.exceptions.AppwriteException
 import io.appwrite.services.Account
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import okio.IOException
 import java.net.UnknownHostException
@@ -75,7 +77,9 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun register(
         email: String,
-        password: String
+        password: String,
+        name: String,
+        role: String
     ): Result<Session, AuthError> = withContext(Dispatchers.IO) {
         try {
             val userExists = checkUserExists(email = email)
@@ -92,7 +96,9 @@ class AuthRepositoryImpl @Inject constructor(
             return@withContext Result.Success(
                 Session(
                     userId = session.userId,
-                    expire = session.expire
+                    expire = session.expire,
+                    userName = name,
+                    role = role
                 )
             )
         } catch (e: AppwriteException) {
@@ -130,8 +136,18 @@ class AuthRepositoryImpl @Inject constructor(
         try {
             val session =
                 account.get().createEmailPasswordSession(email = email, password = password)
-            Result.Success(Session(userId = session.userId, expire = session.expire))
+            val user = tablesDB.getRow(
+                databaseId = DATABASE_ID,
+                tableId = "users",
+                rowId = session.userId,
+                nestedType = UserDto::class.java
+            ).data
+
+            Result.Success(Session(userId = session.userId, expire = session.expire, userName = user.name, role = user.role))
         } catch (e: AppwriteException) {
+            try {
+                account.get().deleteSession("current")
+            } catch (ex: Exception) {}
             val authError = when (e.code) {
                 409 -> AuthError.USER_EXISTS
                 429 -> AuthError.TOO_MANY_REQUESTS

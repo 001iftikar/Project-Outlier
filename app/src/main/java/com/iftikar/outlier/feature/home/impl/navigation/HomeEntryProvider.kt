@@ -1,10 +1,12 @@
 package com.iftikar.outlier.feature.home.impl.navigation
 
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.iftikar.outlier.feature.home.api.HomeNavKey
 import com.iftikar.outlier.feature.home.impl.HomeScreen
+import com.iftikar.outlier.feature.home.impl.HomeViewModel
 import com.iftikar.outlier.feature.inbox.api.InboxNavKey
 import com.iftikar.outlier.feature.post.api.PostNavKey
 
@@ -12,7 +14,9 @@ fun EntryProviderScope<NavKey>.homeEntry(
     backStack: NavBackStack<NavKey>
 ) {
     entry<HomeNavKey> {
+        val viewModel = hiltViewModel<HomeViewModel>()
         HomeScreen(
+            viewModel = viewModel,
             onDrawerItemClick = { navKey ->
                 when (navKey) {
                     InboxNavKey -> {

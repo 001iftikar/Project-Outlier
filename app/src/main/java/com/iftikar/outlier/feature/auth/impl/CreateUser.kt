@@ -22,7 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.iftikar.outlier.core.domain.repository.UserProfileRepository
-import com.iftikar.outlier.core.result.CreateUserError
+import com.iftikar.outlier.core.result.UserError
 import com.iftikar.outlier.core.result.onError
 import com.iftikar.outlier.core.result.onSuccess
 import com.iftikar.outlier.feature.auth.api.CreateUserNavKey
@@ -114,9 +114,9 @@ class CreateUserViewModel @AssistedInject constructor(
                 _event.send(CreateUserScreenEvent.OnSuccess)
             }.onError { ex ->
                 when (ex) {
-                    CreateUserError.NO_INTERNET -> setError("Please check your internet connection and try again")
-                    CreateUserError.NOT_AUTHORIZED -> setError("Authentication failed")
-                    CreateUserError.UNKNOWN -> setError("Oops! Something happened")
+                    UserError.NO_INTERNET -> setError("Please check your internet connection and try again")
+                    UserError.NOT_AUTHORIZED -> setError("Authentication failed")
+                    UserError.UNKNOWN -> setError("Oops! Something happened")
                 }
             }
         }

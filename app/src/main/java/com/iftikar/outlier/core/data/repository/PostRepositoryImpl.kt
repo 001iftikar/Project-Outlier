@@ -2,11 +2,15 @@ package com.iftikar.outlier.core.data.repository
 
 import com.iftikar.outlier.DATABASE_ID
 import com.iftikar.outlier.POSTS_ID
+import com.iftikar.outlier.core.appwrite.model.PostDto
+import com.iftikar.outlier.core.appwrite.model.asExternalModel
+import com.iftikar.outlier.core.appwrite.util.getImageUrl
 import com.iftikar.outlier.core.data.di.IoDispatcher
 import com.iftikar.outlier.core.domain.repository.PostRepository
 import com.iftikar.outlier.core.models.Post
 import com.iftikar.outlier.core.result.CreatePostError
 import com.iftikar.outlier.core.result.EmptyResult
+import com.iftikar.outlier.core.result.GetPostError
 import com.iftikar.outlier.core.result.Result
 import io.appwrite.ID
 import io.appwrite.Permission
@@ -26,6 +30,7 @@ class PostRepositoryImpl @Inject constructor(
         try {
             val data = mapOf(
                 "userId" to post.userId,
+                "userName" to post.userName,
                 "title" to post.title,
                 "description" to post.description,
                 "images" to post.images,
@@ -64,4 +69,54 @@ class PostRepositoryImpl @Inject constructor(
             Result.Error(CreatePostError.UNKNOWN)
         }
     }
+
+    override suspend fun getPosts(): Result<List<Post>, GetPostError> = withContext(io) {
+        try {
+            val postRows = tablesDB.listRows(
+                databaseId = DATABASE_ID,
+                tableId = POSTS_ID,
+                nestedType = PostDto::class.java
+            ).rows
+            val posts = postRows.map { row ->
+                val imageUrls = row.data.images.map {
+                    getImageUrl(it)
+                }
+                row.data.asExternalModel(imageUrls)
+            }
+            Result.Success(posts)
+        } catch (ex: IOException) {
+            Result.Error(GetPostError.NO_INTERNET)
+        } catch (ex: AppwriteException) {
+            val error = when(ex.code) {
+                404 -> GetPostError.NO_DATA
+                500 -> GetPostError.SERVER
+                else -> GetPostError.UNKNOWN
+            }
+            Result.Error(error)
+        }
+        catch (ex: Exception) {
+            ex.printStackTrace()
+            Result.Error(GetPostError.UNKNOWN)
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
