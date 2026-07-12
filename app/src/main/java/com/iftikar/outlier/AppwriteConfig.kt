@@ -3,3 +3,5 @@ package com.iftikar.outlier
 const val APPWRITE_PROJECT_ID = "6a364bd20011766ebf9d"
 const val APPWRITE_PUBLIC_ENDPOINT = "https://fra.cloud.appwrite.io/v1"
 const val DATABASE_ID = "6a378f1c001c25167771"
+const val POSTS_ID = "posts"
+const val POST_BUCKET_ID = "6a5335cd002342fc9c8c"

@@ -81,15 +81,16 @@ fun FullScreenImagePreview(
                     model = model,
                     contentDescription = null
                 )
-                IconButton(
-                    onClick = onRemoveClick,
-                    modifier = Modifier.align(Alignment.TopEnd)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove"
-                    )
-                }
+            }
+
+            IconButton(
+                onClick = onRemoveClick,
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Remove"
+                )
             }
         }
     }

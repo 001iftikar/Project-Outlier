@@ -30,7 +30,7 @@ fun TextFieldComponent(
         value = value,
         onValueChange = { onValueChange(it) },
         label = { Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground.copy(0.7f)) },
-        trailingIcon = { trailingIcon?.invoke() },
+        trailingIcon = trailingIcon,
         shape = RoundedCornerShape(25.dp),
         visualTransformation = visualTransformation,
         colors = TextFieldDefaults.colors(
