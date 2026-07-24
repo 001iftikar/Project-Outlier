@@ -1,13 +1,13 @@
 package com.iftikar.outlier.core.models
 
 data class Post(
-    val userId: String,
-    val userName: String,
+    val id: String,
     val title: String,
-    val description: String,
+    val desc: String,
     val images: List<String>,
-    val techStack: String,
-    val githubUrl: String,
-    val liveUrl: String,
-    val tags: String
+    val github: String,
+    val liveLink: String,
+    val techStack: List<String>,
+    val tags: String,
+    val user: User
 )

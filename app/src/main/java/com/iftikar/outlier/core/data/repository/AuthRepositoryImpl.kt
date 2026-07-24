@@ -5,7 +5,7 @@ import com.descope.session.DescopeSession
 import com.descope.types.DeliveryMethod
 import com.descope.types.DescopeException
 import com.iftikar.outlier.DATABASE_ID
-import com.iftikar.outlier.core.appwrite.model.UserDto
+import com.iftikar.outlier.core.data.model.UserDto
 import com.iftikar.outlier.core.domain.repository.AuthRepository
 import com.iftikar.outlier.core.models.Session
 import com.iftikar.outlier.core.result.AuthError
@@ -19,7 +19,6 @@ import io.appwrite.exceptions.AppwriteException
 import io.appwrite.services.Account
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import okio.IOException
 import java.net.UnknownHostException

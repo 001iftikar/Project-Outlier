@@ -24,7 +24,7 @@ fun PostComponent(
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         PosterComponent(
-            name = post.userName,
+            name = post.user.name,
             profilePic = "https://images5.alphacoders.com/651/thumb-1920-651720.jpg",
             techStack = "Android, Jetpack Compose, Java, C++"
         )

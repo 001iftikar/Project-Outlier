@@ -1,19 +1,22 @@
 package com.iftikar.outlier.core.data.repository
 
+import android.util.Log
 import com.iftikar.outlier.DATABASE_ID
 import com.iftikar.outlier.POSTS_ID
-import com.iftikar.outlier.core.appwrite.model.PostDto
-import com.iftikar.outlier.core.appwrite.model.asExternalModel
 import com.iftikar.outlier.core.appwrite.util.getImageUrl
 import com.iftikar.outlier.core.data.di.IoDispatcher
+import com.iftikar.outlier.core.data.model.PostResponseDto
+import com.iftikar.outlier.core.data.model.asExternalModule
 import com.iftikar.outlier.core.domain.repository.PostRepository
 import com.iftikar.outlier.core.models.Post
+import com.iftikar.outlier.core.models.SendPost
 import com.iftikar.outlier.core.result.CreatePostError
 import com.iftikar.outlier.core.result.EmptyResult
 import com.iftikar.outlier.core.result.GetPostError
 import com.iftikar.outlier.core.result.Result
 import io.appwrite.ID
 import io.appwrite.Permission
+import io.appwrite.Query
 import io.appwrite.Role
 import io.appwrite.exceptions.AppwriteException
 import io.appwrite.services.TablesDB
@@ -26,18 +29,17 @@ class PostRepositoryImpl @Inject constructor(
     private val tablesDB: TablesDB,
     @param:IoDispatcher private val io: CoroutineDispatcher,
 ) : PostRepository {
-    override suspend fun createPost(post: Post, userId: String): EmptyResult<CreatePostError> = withContext(io) {
+    override suspend fun createPost(sendPost: SendPost, userId: String): EmptyResult<CreatePostError> = withContext(io) {
         try {
             val data = mapOf(
-                "userId" to post.userId,
-                "userName" to post.userName,
-                "title" to post.title,
-                "description" to post.description,
-                "images" to post.images,
-                "github" to post.githubUrl,
-                "liveLink" to post.liveUrl,
-                "techStack" to post.techStack.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                "tags" to post.tags.split(",").map { it.trim().removePrefix("#") }.filter { it.isNotEmpty() }
+                "user" to sendPost.userId,
+                "title" to sendPost.title,
+                "description" to sendPost.description,
+                "images" to sendPost.images,
+                "github" to sendPost.githubUrl,
+                "liveLink" to sendPost.liveUrl,
+                "techStack" to sendPost.techStack.split(",").map { it.trim() }.filter { it.isNotEmpty() },
+                "tags" to sendPost.tags.split(",").map { it.trim().removePrefix("#") }.filter { it.isNotEmpty() }
             )
             tablesDB.createRow(
                 databaseId = DATABASE_ID,
@@ -75,18 +77,29 @@ class PostRepositoryImpl @Inject constructor(
             val postRows = tablesDB.listRows(
                 databaseId = DATABASE_ID,
                 tableId = POSTS_ID,
-                nestedType = PostDto::class.java
+                queries = listOf(
+                    // 1. Order them newest to oldest
+                    Query.orderDesc("\$createdAt"),
+
+                    // 2. TELL Appwrite: "Give me the post data (*),
+                    // AND fully expand the user object (user.*) so I can see who posted it!"
+                    Query.select(listOf("*", "user.*"))
+                ),
+                nestedType = PostResponseDto::class.java
             ).rows
             val posts = postRows.map { row ->
-                val imageUrls = row.data.images.map {
+                val imageUrls = row.data.images?.map {
                     getImageUrl(it)
                 }
-                row.data.asExternalModel(imageUrls)
+                row.data.asExternalModule(imageUrls ?: emptyList())
             }
+            Log.d("GetPost", "getPosts: $posts")
             Result.Success(posts)
         } catch (ex: IOException) {
             Result.Error(GetPostError.NO_INTERNET)
         } catch (ex: AppwriteException) {
+            ex.printStackTrace()
+            Log.e("GetPost", "getPosts: ${ex.localizedMessage}", )
             val error = when(ex.code) {
                 404 -> GetPostError.NO_DATA
                 500 -> GetPostError.SERVER

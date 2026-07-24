@@ -1,10 +1,9 @@
-package com.iftikar.outlier.core.appwrite.model
+package com.iftikar.outlier.core.data.model
 
-import com.iftikar.outlier.core.models.Post
+import com.iftikar.outlier.core.models.SendPost
 
-data class PostDto(
+data class PostRequestDto(
     val userId: String,
-    val userName: String,
     val title: String,
     val description: String,
     val images: List<String>,
@@ -14,10 +13,9 @@ data class PostDto(
     val tags: List<String>
 )
 
-fun PostDto.asExternalModel(imageUrls: List<String>): Post {
-    return Post(
+fun PostRequestDto.asExternalModel(imageUrls: List<String>): SendPost {
+    return SendPost(
         userId = userId,
-        userName = userName,
         title = title,
         description = description,
         images = imageUrls,

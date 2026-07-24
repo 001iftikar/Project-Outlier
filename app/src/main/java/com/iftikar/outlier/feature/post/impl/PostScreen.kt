@@ -83,7 +83,7 @@ fun PostScreen(
     Scaffold(
         topBar = {
             OutlierTopAppBar(
-                title = { Text("Post") })
+                title = { Text("SendPost") })
         }) { innerPadding ->
         if (state.showImageInFullScreen) {
             FullScreenImagePreview(

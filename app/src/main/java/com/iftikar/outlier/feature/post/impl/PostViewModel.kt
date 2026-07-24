@@ -1,23 +1,19 @@
 package com.iftikar.outlier.feature.post.impl
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iftikar.outlier.core.datastore.SessionManager
 import com.iftikar.outlier.core.domain.repository.PostRepository
 import com.iftikar.outlier.core.domain.repository.StorageRepository
-import com.iftikar.outlier.core.models.Post
+import com.iftikar.outlier.core.models.SendPost
 import com.iftikar.outlier.core.result.CreatePostError
 import com.iftikar.outlier.core.result.onError
 import com.iftikar.outlier.core.result.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -79,14 +75,13 @@ class PostViewModel @Inject constructor(
             _state.update { it.copy(isPosting = true) }
             try {
                 val userId = sessionManager.getUserId()
-                val currentUserName = sessionManager.getUserName()
-                if (userId == null || currentUserName == null) {
+                if (userId == null) {
                     _event.send(PostScreenEvent.OnError("Session is expired, please log in and try again"))
                     return@launch
                 }
                 val currentState = _state.value
                 val ids = storageRepository.uploadFiles(currentState.selectedImages)
-                val post = Post(
+                val sendPost = SendPost(
                     userId = userId,
                     title = currentState.title,
                     description = currentState.description,
@@ -94,12 +89,11 @@ class PostViewModel @Inject constructor(
                     techStack = currentState.techStack,
                     githubUrl = currentState.githubUrl,
                     liveUrl = currentState.liveProjectUrl,
-                    tags = currentState.tags,
-                    userName =currentUserName
+                    tags = currentState.tags
                 )
-                postRepository.createPost(post, userId = userId).onSuccess {
+                postRepository.createPost(sendPost, userId = userId).onSuccess {
                     _state.update { it.copy(isPosting = false) }
-                    _event.send(PostScreenEvent.OnSuccess("Post Published"))
+                    _event.send(PostScreenEvent.OnSuccess("SendPost Published"))
                 }.onError { ex ->
                     _state.update { it.copy(isPosting = false) }
                     when(ex) {

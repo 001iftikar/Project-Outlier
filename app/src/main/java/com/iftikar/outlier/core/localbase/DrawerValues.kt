@@ -9,5 +9,5 @@ import com.iftikar.outlier.feature.post.api.PostNavKey
 
 val drawerItems = listOf(
     DrawerItem(icon = Icons.Outlined.ChatBubbleOutline, title = "Inbox", navKey = InboxNavKey),
-    DrawerItem(icon = Icons.Outlined.Add, title = "Post", navKey = PostNavKey)
+    DrawerItem(icon = Icons.Outlined.Add, title = "SendPost", navKey = PostNavKey)
 )

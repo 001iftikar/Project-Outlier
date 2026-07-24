@@ -125,8 +125,7 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(18.dp),
                         contentPadding = innerPadding
                     ) {
-                        items(state.posts) {post ->
-                            Log.e("POST", "HomeScreen: ${post.images}")
+                        items(state.posts) { post ->
                             PostComponent(
                                 post = post
                             )
