@@ -4,4 +4,4 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RegisterNavKey(val email: String) : NavKey
+data object RegisterNavKey : NavKey

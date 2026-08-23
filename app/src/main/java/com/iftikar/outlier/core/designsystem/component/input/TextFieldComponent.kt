@@ -18,6 +18,7 @@ fun TextFieldComponent(
     value: String,
     label: String,
     supportingText: String? = null,
+    supportingTextColor: Color = MaterialTheme.colorScheme.error, // since it is being used mostly for showing error
     onValueChange: (String) -> Unit,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -45,7 +46,7 @@ fun TextFieldComponent(
             unfocusedSupportingTextColor = Color.White
         ),
         supportingText = if (supportingText != null) {
-            { Text(text = supportingText, color = MaterialTheme.colorScheme.error) }
+            { Text(text = supportingText, color = supportingTextColor) }
         } else {
             null
         },

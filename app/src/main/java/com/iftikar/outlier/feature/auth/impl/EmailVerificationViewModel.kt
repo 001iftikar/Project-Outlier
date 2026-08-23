@@ -2,10 +2,16 @@ package com.iftikar.outlier.feature.auth.impl
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iftikar.outlier.core.datastore.SessionManager
 import com.iftikar.outlier.core.domain.repository.AuthRepository
 import com.iftikar.outlier.core.result.DescopeError
+import com.iftikar.outlier.core.result.EmailVerificationError
 import com.iftikar.outlier.core.result.onError
 import com.iftikar.outlier.core.result.onSuccess
+import com.iftikar.outlier.feature.auth.api.EmailVerifyNavKey
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,10 +21,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-class EmailVerificationViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+@HiltViewModel(assistedFactory = EmailVerificationViewModel.Factory::class)
+class EmailVerificationViewModel @AssistedInject constructor(
+    private val authRepository: AuthRepository,
+    private val sessionManager: SessionManager,
+    @Assisted val args: EmailVerifyNavKey
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: EmailVerifyNavKey): EmailVerificationViewModel
+    }
     private val _state = MutableStateFlow(EmailVerificationScreenState())
     val state = _state.asStateFlow()
 
@@ -27,51 +39,8 @@ class EmailVerificationViewModel @Inject constructor(
 
     fun onAction(action: EmailVerificationScreenAction) {
         when (action) {
-            is EmailVerificationScreenAction.OnEmailChange -> _state.update { it.copy(email = action.email) }
             is EmailVerificationScreenAction.OnCodeChange -> _state.update { it.copy(code = action.code) }
-            EmailVerificationScreenAction.OnSendOtpClick -> sendOtp()
             EmailVerificationScreenAction.OnVerifyOtpClick -> verifyEmail()
-            EmailVerificationScreenAction.OnChangeEmailClick -> {
-                _state.update {
-                    it.copy(
-                        code = "",
-                        isVerifyingOtp = false,
-                        verifyOtpError = null,
-                        maskedEmail = null,
-                        showEmailScreen = true
-                    )
-                }
-            }
-        }
-    }
-
-    private fun sendOtp() {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(isSendingOtp = true, sendOtpError = null)
-            }
-            authRepository.sendOtp(_state.value.email).onSuccess { maskedEmail ->
-                _state.update {
-                    it.copy(
-                        maskedEmail = maskedEmail,
-                        isSendingOtp = false,
-                        showEmailScreen = false
-                    )
-                }
-            }.onError { ex ->
-                _state.update {
-                    it.copy(isSendingOtp = false)
-                }
-                when (ex) {
-                    DescopeError.NO_INTERNET -> {
-                        _state.update { it.copy(sendOtpError = "You're offline, please connect to the internet and try again") }
-                    }
-
-                    else -> {
-                        _state.update { it.copy(sendOtpError = "Oops! Something is wrong") }
-                    }
-                }
-            }
         }
     }
 
@@ -80,29 +49,32 @@ class EmailVerificationViewModel @Inject constructor(
             _state.update {
                 it.copy(isVerifyingOtp = true, verifyOtpError = null)
             }
-            authRepository.verifyOtp(_state.value.email, _state.value.code).onSuccess { email ->
+            authRepository.verifyOtp(args.email, _state.value.code).onSuccess { session ->
                 _state.update {
                     it.copy(isVerifyingOtp = false)
                 }
-                _event.send(EmailVerificationScreenEvent.OnSuccess(email))
+                sessionManager.saveTokensOnFirstLogin(session)
+                _event.send(EmailVerificationScreenEvent.OnSuccess)
             }.onError { ex ->
                 _state.update {
-                    it.copy(isVerifyingOtp = true)
+                    it.copy(isVerifyingOtp = false)
                 }
                 when (ex) {
-                    DescopeError.NO_INTERNET -> {
-                        _state.update { it.copy(verifyOtpError = "You're offline, please connect to the internet and try again") }
-                    }
-
-                    DescopeError.UNKNOWN -> {
-                        _state.update { it.copy(verifyOtpError = "Oops! Something is wrong") }
-                    }
-
-                    DescopeError.WRONG_OTP -> {
-                        _state.update { it.copy(verifyOtpError = "Wrong OTP") }
-                    }
+                    EmailVerificationError.VERIFICATION_NOT_FOUND -> showError("No pending email verification found.")
+                    EmailVerificationError.OTP_ATTEMPTS_EXCEEDED -> showError("Too many incorrect attempts.")
+                    EmailVerificationError.OTP_EXPIRED -> showError("OTP expired, please request a new one.")
+                    EmailVerificationError.INVALID_OTP -> showError("You have entered a wrong OTP.")
+                    EmailVerificationError.UNKNOWN -> showError("Oops! Something went wrong, OTP verification failed.")
+                    EmailVerificationError.NO_INTERNET -> showError("Please check your internet connection.")
                 }
             }
+        }
+    }
+
+    private fun showError(error: String) {
+        _state.update { it.copy(isVerifyingOtp = false) }
+        viewModelScope.launch {
+            _event.send(EmailVerificationScreenEvent.OnError(error))
         }
     }
 }

@@ -2,7 +2,7 @@ package com.iftikar.outlier.core.result
 
 enum class AuthError : Error {
     USER_EXISTS,
-    INVALID_EMAIL,
+    VALIDATION_ERROR,
     AUTH_FAILED,
     PASSWORD_MISMATCH,
     TOO_MANY_REQUESTS,

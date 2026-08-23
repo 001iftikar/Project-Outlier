@@ -2,16 +2,9 @@ package com.iftikar.outlier.feature.auth.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,8 +30,8 @@ fun EnterCodeComponent(
     onButtonClicked: () -> Unit,
     isLoading: Boolean,
     verifyingError: String?,
-    maskedEmail: String?,
-    onChangeEmailClick: () -> Unit
+    email: String?,
+    onBackToRegister: () -> Unit
 ) {
     var resendIn by retain { mutableIntStateOf(59) }
     LaunchedEffect(resendIn) {
@@ -53,10 +46,10 @@ fun EnterCodeComponent(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
     )
     {
-        if (!maskedEmail.isNullOrEmpty()) {
+        if (!email.isNullOrEmpty()) {
 
             Text(
-                text = "An OTP has been sent to $maskedEmail",
+                text = "An OTP has been sent to $email",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -92,10 +85,10 @@ fun EnterCodeComponent(
         }
 
         TextButton(
-            onClick = onChangeEmailClick
+            onClick = onBackToRegister
         ) {
             Text(
-                text = "Change email",
+                text = "Back to register",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

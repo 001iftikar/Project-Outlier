@@ -36,6 +36,15 @@ android {
 }
 
 dependencies {
+    // ktor
+    implementation(platform(libs.ktor.bom))
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.auth)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.serialization.kotlinx.json)
+//    implementation(libs.logback.classic)
     // Metadata
     ksp(libs.kotlin.metadata.jvm)
     implementation(libs.sdk.for1.android)

@@ -1,130 +1,111 @@
 package com.iftikar.outlier.core.data.repository
 
-import com.descope.Descope
-import com.descope.session.DescopeSession
-import com.descope.types.DeliveryMethod
-import com.descope.types.DescopeException
-import com.iftikar.outlier.DATABASE_ID
-import com.iftikar.outlier.core.data.model.UserDto
+import com.iftikar.outlier.core.data.di.IoDispatcher
+import com.iftikar.outlier.core.datastore.model.Session
 import com.iftikar.outlier.core.domain.repository.AuthRepository
-import com.iftikar.outlier.core.models.Session
+import com.iftikar.outlier.core.network.AuthApiService
+import com.iftikar.outlier.core.network.model.UserRequestDto
+import com.iftikar.outlier.core.network.model.VerifyEmailRequestDto
 import com.iftikar.outlier.core.result.AuthError
-import com.iftikar.outlier.core.result.DescopeError
+import com.iftikar.outlier.core.result.EmailVerificationError
 import com.iftikar.outlier.core.result.EmptyResult
+import com.iftikar.outlier.core.result.GenericError
 import com.iftikar.outlier.core.result.Result
-import dagger.Lazy
-import io.appwrite.ID
-import io.appwrite.Query
-import io.appwrite.exceptions.AppwriteException
-import io.appwrite.services.Account
-import io.appwrite.services.TablesDB
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.IOException
-import java.net.UnknownHostException
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
-    private val account: Lazy<Account>,
-    private val tablesDB: TablesDB
+    private val authApiService: AuthApiService,
+    @param:IoDispatcher private val io: CoroutineDispatcher
 ) : AuthRepository {
-    override suspend fun sendOtp(email: String): Result<String, DescopeError> =
-        withContext(Dispatchers.IO) {
-            try {
-                val maskedEmail = Descope.otp.signUpOrIn(method = DeliveryMethod.Email, loginId = email)
-                Result.Success(maskedEmail)
-            } catch (ex: DescopeException) {
-                ex.printStackTrace()
-                if (ex.cause is UnknownHostException) {
-                    Result.Error(DescopeError.NO_INTERNET)
-                } else {
-                    Result.Error(DescopeError.UNKNOWN)
-                }
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-                Result.Error(DescopeError.UNKNOWN)
+    override suspend fun checkIfUsernameExists(username: String): Result<Boolean, GenericError> = withContext(io) {
+        try {
+            val response = authApiService.checkUsernameExists(username)
+            if (
+                response.data == null
+            ) {
+                return@withContext Result.Error(GenericError.UNKNOWN)
             }
+            Result.Success(response.data)
+        } catch (ex: IOException) {
+            Result.Error(GenericError.NO_INTERNET)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            Result.Error(GenericError.UNKNOWN)
         }
+    }
 
-    override suspend fun verifyOtp(email: String, code: String): Result<String, DescopeError> =
+    override suspend fun verifyOtp(email: String, code: String): Result<Session, EmailVerificationError> =
         withContext(
             Dispatchers.IO
         ) {
             try {
-                val authResponse =
-                    Descope.otp.verify(method = DeliveryMethod.Email, loginId = email, code = code)
-                val session = DescopeSession(authResponse)
-                Descope.sessionManager.manageSession(session)
-                Result.Success(email)
-            } catch (ex: DescopeException) {
-                if (ex.cause is UnknownHostException) {
-                    Result.Error(DescopeError.NO_INTERNET)
+                val response = authApiService.verifyEmail(
+                    VerifyEmailRequestDto(email, code)
+                )
+                if (response.data != null) {
+                    val session = Session(
+                        accessToken = response.data.accessToken,
+                        refreshToken = response.data.refreshToken
+                    )
+
+                    Result.Success(session)
                 } else {
-                    when (ex) {
-                        DescopeException.wrongOtpCode -> Result.Error(DescopeError.WRONG_OTP)
+                    val error = when(response.code) {
+                        "VERIFICATION_NOT_FOUND" -> EmailVerificationError.VERIFICATION_NOT_FOUND
+                        "OTP_ATTEMPTS_EXCEEDED" -> EmailVerificationError.OTP_ATTEMPTS_EXCEEDED
+                        "OTP_EXPIRED" -> EmailVerificationError.OTP_EXPIRED
+                        "INVALID_OTP" -> EmailVerificationError.INVALID_OTP
                         else -> {
-                            ex.printStackTrace()
-                            Result.Error(DescopeError.UNKNOWN)
+                            EmailVerificationError.UNKNOWN
                         }
                     }
+                    Result.Error(error)
                 }
+            } catch (ex: IOException) {
+                Result.Error(EmailVerificationError.NO_INTERNET)
             } catch (ex: Exception) {
                 ex.printStackTrace()
-                Result.Error(DescopeError.UNKNOWN)
+                Result.Error(EmailVerificationError.UNKNOWN)
             }
         }
 
     override suspend fun register(
+        username: String,
         email: String,
         password: String,
         name: String,
         role: String
-    ): Result<Session, AuthError> = withContext(Dispatchers.IO) {
+    ): Result<String, AuthError> = withContext(Dispatchers.IO) {
         try {
-            val userExists = checkUserExists(email = email)
-            if (userExists) return@withContext Result.Error(AuthError.USER_EXISTS)
-            account.get().create(
-                userId = ID.unique(),
-                email = email,
-                password = password
-            )
-            val session = account.get().createEmailPasswordSession(
-                email = email,
-                password = password
-            )
-            return@withContext Result.Success(
-                Session(
-                    userId = session.userId,
-                    expire = session.expire,
-                    userName = name,
+            val response = authApiService.registerUser(
+                UserRequestDto(
+                    username = username,
+                    email = email,
+                    password = password,
+                    name = name,
                     role = role
                 )
             )
-        } catch (e: AppwriteException) {
-            val authError = when (e.code) {
-                409 -> AuthError.USER_EXISTS
-                429 -> AuthError.TOO_MANY_REQUESTS
-                401 -> AuthError.AUTH_FAILED
-                408, 504 -> AuthError.REQUEST_TIMEOUT
-                400 -> {
-                    // 400 is a general "Bad Request". We can check the message to be more specific.
-                    val msg = e.message?.lowercase() ?: ""
-                    when {
-                        msg.contains("email") -> AuthError.INVALID_EMAIL
-                        msg.contains("password") -> AuthError.PASSWORD_MISMATCH
-                        else -> AuthError.AUTH_FAILED
-                    }
+
+            if (response.data != null) {
+                Result.Success(response.data.email)
+            } else {
+                val error = when(response.code) {
+                    "EMAIL_ALREADY_EXISTS" -> AuthError.USER_EXISTS
+                    "VALIDATION_ERROR" -> AuthError.VALIDATION_ERROR
+                    else -> AuthError.AUTH_FAILED
                 }
-
-                else -> AuthError.UNKNOWN
+                Result.Error(error)
             }
-            return@withContext Result.Error(authError)
-
         } catch (e: IOException) {
-            return@withContext Result.Error(AuthError.NO_INTERNET)
+            Result.Error(AuthError.NO_INTERNET)
         } catch (e: Exception) {
             e.printStackTrace()
-            return@withContext Result.Error(AuthError.UNKNOWN)
+            Result.Error(AuthError.UNKNOWN)
         }
     }
 
@@ -132,74 +113,10 @@ class AuthRepositoryImpl @Inject constructor(
         email: String,
         password: String
     ): Result<Session, AuthError> = withContext(Dispatchers.IO) {
-        try {
-            val session =
-                account.get().createEmailPasswordSession(email = email, password = password)
-            val user = tablesDB.getRow(
-                databaseId = DATABASE_ID,
-                tableId = "users",
-                rowId = session.userId,
-                nestedType = UserDto::class.java
-            ).data
-
-            Result.Success(Session(userId = session.userId, expire = session.expire, userName = user.name, role = user.role))
-        } catch (e: AppwriteException) {
-            try {
-                account.get().deleteSession("current")
-            } catch (ex: Exception) {}
-            val authError = when (e.code) {
-                409 -> AuthError.USER_EXISTS
-                429 -> AuthError.TOO_MANY_REQUESTS
-                401 -> AuthError.AUTH_FAILED
-                408, 504 -> AuthError.REQUEST_TIMEOUT
-                400 -> {
-                    // 400 is a general "Bad Request". We can check the message to be more specific.
-                    val msg = e.message?.lowercase() ?: ""
-                    when {
-                        msg.contains("email") -> AuthError.INVALID_EMAIL
-                        msg.contains("password") -> AuthError.PASSWORD_MISMATCH
-                        else -> AuthError.AUTH_FAILED
-                    }
-                }
-
-                else -> AuthError.UNKNOWN
-            }
-            return@withContext Result.Error(authError)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            Result.Error(AuthError.UNKNOWN)
-        }
-
+        TODO("Not yet implemented")
     }
 
-    override suspend fun logout(): EmptyResult<AuthError> = withContext(Dispatchers.IO) {
-        try {
-            account.get().deleteSession("current")
-            Result.Success(Unit)
-        } catch (ex: IOException) {
-            Result.Error(AuthError.NO_INTERNET)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            Result.Error(AuthError.UNKNOWN)
-        }
-    }
-
-    private suspend fun checkUserExists(email: String): Boolean = withContext(
-        Dispatchers.IO
-    ) {
-        try {
-            val response = tablesDB.listRows(
-                databaseId = DATABASE_ID,
-                tableId = "users",
-                queries = listOf(
-                    Query.equal("email", email),
-                    Query.limit(1)
-                )
-            )
-            return@withContext response.total != 0L
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            false
-        }
+    override suspend fun logout(): EmptyResult<AuthError> {
+        TODO("Not yet implemented")
     }
 }

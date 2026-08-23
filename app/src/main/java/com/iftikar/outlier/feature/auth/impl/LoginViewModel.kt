@@ -43,12 +43,11 @@ class LoginViewModel @Inject constructor(
                 email = _state.value.email,
                 password = _state.value.password
             ).onSuccess { session ->
-                sessionManager.saveSession(userId = session.userId, expiry = session.expire, userName = session.userName, role = session.role)
+//                sessionManager.saveSession(userId = session.userId, expiry = session.expire, userName = session.userName, role = session.role)
                 _state.update { it.copy(isLoading = false) }
                 _event.send(LoginScreenEvent.OnSuccess)
             }.onError { ex ->
                 when(ex) {
-                    AuthError.INVALID_EMAIL -> setError("Invalid email")
                     AuthError.AUTH_FAILED -> setError("Login failed! Please check your email or password")
                     AuthError.PASSWORD_MISMATCH -> setError("Invalid email or password")
                     AuthError.TOO_MANY_REQUESTS -> setError("Too many requests, please try after sometime")

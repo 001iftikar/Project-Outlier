@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -31,11 +33,12 @@ import com.iftikar.outlier.core.designsystem.component.GlassEffect
 import com.iftikar.outlier.core.designsystem.component.checkbox.CheckboxComponent
 import com.iftikar.outlier.core.designsystem.component.input.TextFieldComponent
 import com.iftikar.outlier.feature.auth.component.GradientBackground
+import com.iftikar.outlier.feature.auth.component.LoadingSpinner
 
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel,
-    onSuccess: (String, String, String) -> Unit, // name, email, role
+    onSuccess: (String) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val action = viewModel::onAction
@@ -43,7 +46,7 @@ fun RegisterScreen(
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when(event) {
-                is RegisterScreenEvent.OnSuccess -> onSuccess(event.name, event.email, event.role.name)
+                is RegisterScreenEvent.OnSuccess -> onSuccess(event.email)
                 is RegisterScreenEvent.OnError -> {
                     Toast
                         .makeText(context, event.error, Toast.LENGTH_LONG)
@@ -70,6 +73,24 @@ fun RegisterScreen(
                         label = "Name (required)",
                         onValueChange = { action(RegisterScreenAction.OnNameChange(it)) },
                         supportingText = if (state.name.length < 3 && state.name.isNotEmpty()) "Name must be of 3 characters" else null
+                    )
+                    TextFieldComponent(
+                        value = state.username,
+                        label = "Username (required)",
+                        onValueChange = {action(RegisterScreenAction.OnUsernameChange(it))},
+                        supportingText = if (state.username.isNotEmpty()) state.usernameAvailability else null,
+                        supportingTextColor = if (state.isUsernameAvailable == true) Color.Green else MaterialTheme.colorScheme.error,
+                        trailingIcon = {
+                            if (state.checkingUsername != null && state.checkingUsername == true) {
+                                LoadingSpinner()
+                            }
+                        }
+                    )
+                    TextFieldComponent(
+                        value = state.email,
+                        label = "Email (required)",
+                        onValueChange = { action(RegisterScreenAction.OnEmailChange(it)) },
+                        supportingText = state.emailError
                     )
                     TextFieldComponent(
                         value = state.password,
