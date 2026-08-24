@@ -4,7 +4,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import com.iftikar.outlier.feature.auth.api.CreateUserNavKey
 import com.iftikar.outlier.feature.auth.api.EmailVerifyNavKey
 import com.iftikar.outlier.feature.auth.api.RegisterNavKey
 import com.iftikar.outlier.feature.auth.impl.RegisterScreen

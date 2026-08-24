@@ -29,7 +29,7 @@ class LoginViewModel @Inject constructor(
 
     fun onAction(action: LoginScreenAction) {
         when(action) {
-            is LoginScreenAction.OnEmailChange -> _state.update { it.copy(email = action.email.trim()) }
+            is LoginScreenAction.OnUsernameChange -> _state.update { it.copy(username = action.username.trim()) }
             LoginScreenAction.OnLoginClick -> login()
             is LoginScreenAction.OnPasswordChange -> _state.update { it.copy(password = action.password) }
             LoginScreenAction.OnPasswordEyeClick -> _state.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
@@ -40,16 +40,15 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             authRepository.login(
-                email = _state.value.email,
+                username = _state.value.username,
                 password = _state.value.password
             ).onSuccess { session ->
-//                sessionManager.saveSession(userId = session.userId, expiry = session.expire, userName = session.userName, role = session.role)
+                sessionManager.saveTokensOnFirstLogin(session)
                 _state.update { it.copy(isLoading = false) }
                 _event.send(LoginScreenEvent.OnSuccess)
             }.onError { ex ->
                 when(ex) {
-                    AuthError.AUTH_FAILED -> setError("Login failed! Please check your email or password")
-                    AuthError.PASSWORD_MISMATCH -> setError("Invalid email or password")
+                    AuthError.AUTH_FAILED -> setError("Login failed! Please check your username or password")
                     AuthError.TOO_MANY_REQUESTS -> setError("Too many requests, please try after sometime")
                     AuthError.REQUEST_TIMEOUT -> setError("Request timeout, please try after sometime")
                     AuthError.NO_INTERNET -> setError("Please check your internet connection and try again")

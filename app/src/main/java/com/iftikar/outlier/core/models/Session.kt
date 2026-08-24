@@ -1,4 +1,4 @@
-package com.iftikar.outlier.core.datastore.model
+package com.iftikar.outlier.core.models
 
 data class Session(
     val accessToken: String,

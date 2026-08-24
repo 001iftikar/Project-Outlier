@@ -1,60 +1,33 @@
 package com.iftikar.outlier.core.data.repository
 
-import com.iftikar.outlier.DATABASE_ID
+import com.iftikar.outlier.core.data.di.IoDispatcher
 import com.iftikar.outlier.core.domain.repository.UserProfileRepository
-import com.iftikar.outlier.core.models.User
-import com.iftikar.outlier.core.result.UserError
-import com.iftikar.outlier.core.result.EmptyResult
+import com.iftikar.outlier.core.models.DrawerUserInfo
+import com.iftikar.outlier.core.network.api.UserApiService
+import com.iftikar.outlier.core.network.model.esExternalModel
+import com.iftikar.outlier.core.result.GenericError
 import com.iftikar.outlier.core.result.Result
-import io.appwrite.Permission
-import io.appwrite.Role
-import io.appwrite.exceptions.AppwriteException
-import io.appwrite.services.Account
-import io.appwrite.services.TablesDB
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import okio.IOException
 import javax.inject.Inject
-import kotlin.collections.mapOf
 
 class UserProfileRepositoryImpl @Inject constructor(
-    private val account: Account,
-    private val tablesDB: TablesDB
+    private val userApiService: UserApiService,
+    @param:IoDispatcher private val io: CoroutineDispatcher
 ) : UserProfileRepository {
-    override suspend fun createUser(
-        name: String,
-        email: String,
-        role: String
-    ): EmptyResult<UserError> = withContext(Dispatchers.IO) {
+    override suspend fun getDrawerUserInfo(): Result<DrawerUserInfo, GenericError> = withContext(io) {
         try {
-            val userId = account.get().id
-            tablesDB.createRow(
-                databaseId = DATABASE_ID,
-                tableId = "users",
-                rowId = userId,
-                data = mapOf(
-                    "name" to name,
-                    "email" to email,
-                    "role" to role
-                ),
-                permissions = listOf(
-                    Permission.read(Role.any()),
-                    Permission.update(Role.user(userId))
-                )
-            )
-            return@withContext Result.Success(Unit)
-        } catch (ex: AppwriteException) {
-            ex.printStackTrace()
-            val error = when(ex.code){
-                401 -> UserError.NOT_AUTHORIZED
-                else -> UserError.UNKNOWN
+            val response = userApiService.getDrawerUserInfo()
+            if (response.data == null) {
+                Result.Error(GenericError.UNKNOWN)
+            } else {
+                Result.Success(response.data.esExternalModel())
             }
-            return@withContext Result.Error(error)
-        } catch (e: IOException) {
-            return@withContext Result.Error(UserError.NO_INTERNET)
-        }
-        catch (e: Exception) {
-            return@withContext Result.Error(UserError.UNKNOWN)
+        } catch (ex: IOException) {
+            Result.Error(GenericError.NO_INTERNET)
+        } catch (ex: Exception) {
+            Result.Error(GenericError.UNKNOWN)
         }
     }
 }

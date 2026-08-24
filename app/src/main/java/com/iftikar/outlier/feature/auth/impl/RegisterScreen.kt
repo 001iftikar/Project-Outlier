@@ -33,7 +33,7 @@ import com.iftikar.outlier.core.designsystem.component.GlassEffect
 import com.iftikar.outlier.core.designsystem.component.checkbox.CheckboxComponent
 import com.iftikar.outlier.core.designsystem.component.input.TextFieldComponent
 import com.iftikar.outlier.feature.auth.component.GradientBackground
-import com.iftikar.outlier.feature.auth.component.LoadingSpinner
+import com.iftikar.outlier.core.designsystem.component.spinner.LoadingSpinner
 
 @Composable
 fun RegisterScreen(

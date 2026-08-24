@@ -2,7 +2,7 @@ package com.iftikar.outlier.core.network.di
 
 import com.iftikar.outlier.core.datastore.SessionManager
 import com.iftikar.outlier.core.network.model.RefreshTokenRequest
-import com.iftikar.outlier.core.util.sharedmodels.ApiResponse
+import com.iftikar.outlier.core.network.model.ApiResponse
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -69,7 +69,7 @@ object KtorModule {
     @Provides
     @Named("MainClient")
     fun provideMainKtorClient(
-        @Named("RefreshClient")
+        @Named("AuthClient")
         refreshClient: HttpClient,
         sessionManager: SessionManager
     ): HttpClient {

@@ -1,10 +1,11 @@
-package com.iftikar.outlier.core.network
+package com.iftikar.outlier.core.network.api
 
+import com.iftikar.outlier.core.network.model.ApiResponse
 import com.iftikar.outlier.core.network.model.AuthResponse
+import com.iftikar.outlier.core.network.model.LoginRequestDto
 import com.iftikar.outlier.core.network.model.RegisterResponseDto
 import com.iftikar.outlier.core.network.model.UserRequestDto
 import com.iftikar.outlier.core.network.model.VerifyEmailRequestDto
-import com.iftikar.outlier.core.util.sharedmodels.ApiResponse
 
 interface AuthApiService {
     /**
@@ -21,4 +22,5 @@ interface AuthApiService {
      * verify the email, if success, create the user in db
      */
     suspend fun verifyEmail(verifyEmailRequestDto: VerifyEmailRequestDto): ApiResponse<AuthResponse>
+    suspend fun login(requestDto: LoginRequestDto): ApiResponse<AuthResponse>
 }

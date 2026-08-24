@@ -61,10 +61,9 @@ fun LoginScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
                 ) {
                     TextFieldComponent(
-                        value = state.email,
-                        label = "Email (required)",
-                        onValueChange = { action(LoginScreenAction.OnEmailChange(it)) },
-                        supportingText = state.emailError
+                        value = state.username,
+                        label = "Username (required)",
+                        onValueChange = { action(LoginScreenAction.OnUsernameChange(it)) },
                     )
                     TextFieldComponent(
                         value = state.password,

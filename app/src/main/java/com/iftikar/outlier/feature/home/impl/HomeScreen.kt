@@ -1,6 +1,5 @@
 package com.iftikar.outlier.feature.home.impl
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -39,13 +38,16 @@ import com.iftikar.outlier.core.designsystem.theme.LocalSpacing
 import com.iftikar.outlier.feature.home.components.bars.HomeTopBar
 import com.iftikar.outlier.feature.home.components.drawer.DrawerContent
 import com.iftikar.outlier.feature.home.components.post.PostComponent
+import com.iftikar.outlier.feature.shared.DrawerUserInfoState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    drawerUserInfoState: DrawerUserInfoState,
     viewModel: HomeViewModel,
-    onDrawerItemClick: (NavKey) -> Unit
+    onDrawerItemClick: (NavKey) -> Unit,
+    onRefetchClick: () -> Unit
 ) {
     val spacing = LocalSpacing.current
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -63,10 +65,15 @@ fun HomeScreen(
             .fillMaxSize(),
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(drawerState = drawerState, onDrawerItemClick = { navKey ->
-                onDrawerItemClick(navKey)
-                scope.launch { drawerState.close() }
-            })
+            DrawerContent(
+                drawerUserInfoState = drawerUserInfoState,
+                drawerState = drawerState,
+                onDrawerItemClick = { navKey ->
+                    onDrawerItemClick(navKey)
+                    scope.launch { drawerState.close() }
+                },
+                onRefetchClick = onRefetchClick
+            )
         },
         gesturesEnabled = true
     ) {
@@ -111,7 +118,7 @@ fun HomeScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Button(
-                            onClick = {action(HomeScreenAction.OnRetry)}
+                            onClick = { action(HomeScreenAction.OnRetry) }
                         ) {
                             Text(
                                 text = "Try Again"

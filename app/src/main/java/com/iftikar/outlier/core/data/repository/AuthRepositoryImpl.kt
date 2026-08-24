@@ -1,9 +1,10 @@
 package com.iftikar.outlier.core.data.repository
 
 import com.iftikar.outlier.core.data.di.IoDispatcher
-import com.iftikar.outlier.core.datastore.model.Session
+import com.iftikar.outlier.core.models.Session
 import com.iftikar.outlier.core.domain.repository.AuthRepository
-import com.iftikar.outlier.core.network.AuthApiService
+import com.iftikar.outlier.core.network.api.AuthApiService
+import com.iftikar.outlier.core.network.model.LoginRequestDto
 import com.iftikar.outlier.core.network.model.UserRequestDto
 import com.iftikar.outlier.core.network.model.VerifyEmailRequestDto
 import com.iftikar.outlier.core.result.AuthError
@@ -110,10 +111,27 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun login(
-        email: String,
+        username: String,
         password: String
     ): Result<Session, AuthError> = withContext(Dispatchers.IO) {
-        TODO("Not yet implemented")
+        try {
+            val response = authApiService.login(LoginRequestDto(username, password))
+            if (response.data != null) {
+                val session = Session(response.data.accessToken, response.data.refreshToken)
+                Result.Success(session)
+            } else {
+                val error = when(response.code) {
+                    "PASSWORD_MISMATCH" -> AuthError.AUTH_FAILED
+                    else -> AuthError.UNKNOWN
+                }
+                Result.Error(error)
+            }
+        } catch (ex: IOException) {
+            Result.Error(AuthError.NO_INTERNET)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            Result.Error(AuthError.UNKNOWN)
+        }
     }
 
     override suspend fun logout(): EmptyResult<AuthError> {

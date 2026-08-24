@@ -1,10 +1,12 @@
-package com.iftikar.outlier.core.network
+package com.iftikar.outlier.core.network.impl
 
+import com.iftikar.outlier.core.network.api.AuthApiService
+import com.iftikar.outlier.core.network.model.ApiResponse
 import com.iftikar.outlier.core.network.model.AuthResponse
+import com.iftikar.outlier.core.network.model.LoginRequestDto
 import com.iftikar.outlier.core.network.model.RegisterResponseDto
 import com.iftikar.outlier.core.network.model.UserRequestDto
 import com.iftikar.outlier.core.network.model.VerifyEmailRequestDto
-import com.iftikar.outlier.core.util.sharedmodels.ApiResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -44,14 +46,11 @@ class AuthApiServiceImpl @Inject constructor(
             setBody(verifyEmailRequestDto)
         }.body<ApiResponse<AuthResponse>>()
     }
+
+    override suspend fun login(requestDto: LoginRequestDto): ApiResponse<AuthResponse> {
+        return httpClient.post("auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(requestDto)
+        }.body()
+    }
 }
-
-
-
-
-
-
-
-
-
-

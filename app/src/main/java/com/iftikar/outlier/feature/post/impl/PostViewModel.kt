@@ -74,7 +74,7 @@ class PostViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isPosting = true) }
             try {
-                val userId = sessionManager.getUserId()
+                val userId = ""
                 if (userId == null) {
                     _event.send(PostScreenEvent.OnError("Session is expired, please log in and try again"))
                     return@launch

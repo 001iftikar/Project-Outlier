@@ -1,4 +1,4 @@
-package com.iftikar.outlier.feature.auth.component
+package com.iftikar.outlier.core.designsystem.component.spinner
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode

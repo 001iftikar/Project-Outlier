@@ -1,4 +1,4 @@
-package com.iftikar.outlier.core.util.sharedmodels
+package com.iftikar.outlier.core.network.model
 
 import kotlinx.serialization.Serializable
 
