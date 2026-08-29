@@ -41,7 +41,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun verifyOtp(email: String, code: String): Result<Session, EmailVerificationError> =
         withContext(
-            Dispatchers.IO
+            io
         ) {
             try {
                 val response = authApiService.verifyEmail(
@@ -80,7 +80,7 @@ class AuthRepositoryImpl @Inject constructor(
         password: String,
         name: String,
         role: String
-    ): Result<String, AuthError> = withContext(Dispatchers.IO) {
+    ): Result<String, AuthError> = withContext(io) {
         try {
             val response = authApiService.registerUser(
                 UserRequestDto(
@@ -113,7 +113,7 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun login(
         username: String,
         password: String
-    ): Result<Session, AuthError> = withContext(Dispatchers.IO) {
+    ): Result<Session, AuthError> = withContext(io) {
         try {
             val response = authApiService.login(LoginRequestDto(username, password))
             if (response.data != null) {
