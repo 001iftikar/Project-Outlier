@@ -14,17 +14,17 @@ data class PostResponseDto(
     val tags: List<String>?,
     val user: UserDto
 )
-
-fun PostResponseDto.asExternalModule(images: List<String>): Post {
-    return Post(
-        id = id ?: "",
-        title = title,
-        desc = description,
-        images = images,
-        github = github ?: "",
-        liveLink = liveLink ?: "",
-        techStack = techStack ?: emptyList(),
-        tags = tags?.joinToString(separator = " ") { "#$it" } ?: "",
-        user = user.asExternalModel(images)
-    )
-}
+//
+//fun PostResponseDto.asExternalModule(images: List<String>): Post {
+//    return Post(
+//        id = id ?: "",
+//        title = title,
+//        desc = description,
+//        images = images,
+//        github = github ?: "",
+//        liveLink = liveLink ?: "",
+//        techStack = techStack ?: emptyList(),
+//        tags = tags?.joinToString(separator = " ") { "#$it" } ?: "",
+//        user = user.asExternalModel(images)
+//    )
+//}

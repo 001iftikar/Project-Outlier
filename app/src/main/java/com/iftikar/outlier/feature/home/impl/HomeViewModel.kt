@@ -21,7 +21,7 @@ class HomeViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        getPosts()
+//        getPosts()
     }
 
     fun onAction(action: HomeScreenAction) {
@@ -48,7 +48,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun setError(error: String) {
-        _state.update { it.copy(isLoading = true, error = error) }
+        _state.update { it.copy(isLoading = false, error = error) }
     }
 }
 

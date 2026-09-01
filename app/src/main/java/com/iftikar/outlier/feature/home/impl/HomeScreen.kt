@@ -31,6 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
@@ -80,19 +83,30 @@ fun HomeScreen(
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
+                .semantics {
+                    testTagsAsResourceId = true
+                }
                 .nestedScroll(topbarScrollBehaviour.nestedScrollConnection)
                 .drawWithContent {
-                    drawContent() // Render the Scaffold, TopBar, and List normally
+                    drawContent()
 
                     if (scrimAlpha > 0f) {
-                        // Paint a black rectangle over the entire Scaffold canvas
-                        drawRect(color = Color.Black, alpha = scrimAlpha)
+                        drawRect(
+                            color = Color.Black,
+                            alpha = scrimAlpha
+                        )
                     }
                 }
                 .clickable(
                     enabled = drawerState.targetValue == DrawerValue.Open,
-                    onClick = { scope.launch { drawerState.close() } },
-                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                    },
+                    interactionSource = remember {
+                        MutableInteractionSource()
+                    },
                     indication = null
                 ),
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.statusBars),
@@ -128,11 +142,12 @@ fun HomeScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier
+                            .testTag("home_posts")
                             .padding(horizontal = spacing.horizontalPadding),
                         verticalArrangement = Arrangement.spacedBy(18.dp),
                         contentPadding = innerPadding
                     ) {
-                        items(state.posts) { post ->
+                        items(state.posts, key = {it.id}) { post ->
                             PostComponent(
                                 post = post
                             )

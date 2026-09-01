@@ -63,7 +63,7 @@ fun OutlierApp() {
             CircularProgressIndicator()
         }
     } else {
-        val backStack = rememberNavBackStack(startDestination ?: LoginNavKey)
+        val backStack = rememberNavBackStack(HomeNavKey)
         Box(Modifier.fillMaxSize())
         {
             NavDisplay(

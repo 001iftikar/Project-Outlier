@@ -1,12 +1,8 @@
 package com.iftikar.outlier.core.data.repository
 
-import android.util.Log
 import com.iftikar.outlier.DATABASE_ID
 import com.iftikar.outlier.POSTS_ID
-import com.iftikar.outlier.core.appwrite.util.getImageUrl
 import com.iftikar.outlier.core.data.di.IoDispatcher
-import com.iftikar.outlier.core.data.model.PostResponseDto
-import com.iftikar.outlier.core.data.model.asExternalModule
 import com.iftikar.outlier.core.domain.repository.PostRepository
 import com.iftikar.outlier.core.models.Post
 import com.iftikar.outlier.core.models.SendPost
@@ -16,7 +12,6 @@ import com.iftikar.outlier.core.result.GetPostError
 import com.iftikar.outlier.core.result.Result
 import io.appwrite.ID
 import io.appwrite.Permission
-import io.appwrite.Query
 import io.appwrite.Role
 import io.appwrite.exceptions.AppwriteException
 import io.appwrite.services.TablesDB
@@ -73,44 +68,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getPosts(): Result<List<Post>, GetPostError> = withContext(io) {
-        try {
-            val postRows = tablesDB.listRows(
-                databaseId = DATABASE_ID,
-                tableId = POSTS_ID,
-                queries = listOf(
-                    // 1. Order them newest to oldest
-                    Query.orderDesc("\$createdAt"),
-
-                    // 2. TELL Appwrite: "Give me the post data (*),
-                    // AND fully expand the user object (user.*) so I can see who posted it!"
-                    Query.select(listOf("*", "user.*"))
-                ),
-                nestedType = PostResponseDto::class.java
-            ).rows
-            val posts = postRows.map { row ->
-                val imageUrls = row.data.images?.map {
-                    getImageUrl(it)
-                }
-                row.data.asExternalModule(imageUrls ?: emptyList())
-            }
-            Log.d("GetPost", "getPosts: $posts")
-            Result.Success(posts)
-        } catch (ex: IOException) {
-            Result.Error(GetPostError.NO_INTERNET)
-        } catch (ex: AppwriteException) {
-            ex.printStackTrace()
-            Log.e("GetPost", "getPosts: ${ex.localizedMessage}", )
-            val error = when(ex.code) {
-                404 -> GetPostError.NO_DATA
-                500 -> GetPostError.SERVER
-                else -> GetPostError.UNKNOWN
-            }
-            Result.Error(error)
-        }
-        catch (ex: Exception) {
-            ex.printStackTrace()
-            Result.Error(GetPostError.UNKNOWN)
-        }
+        TODO()
     }
 }
 

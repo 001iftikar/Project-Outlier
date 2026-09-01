@@ -42,12 +42,9 @@ fun ProjectMainContent(
             modifier = Modifier.fillMaxWidth()
         ) { pageIndex ->
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(projectImages[pageIndex])
-                    .crossfade(true)
-                    .build(),
+                model = projectImages[pageIndex],
                 contentDescription = null,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)

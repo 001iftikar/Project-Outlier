@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Outlier"
 include(":app")
- 
+include(":benchmark")
