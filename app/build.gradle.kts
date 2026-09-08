@@ -49,6 +49,9 @@ android {
 }
 
 dependencies {
+    // Cloudinary
+    implementation(libs.cloudinary.android)
+
     // ktor
     implementation(platform(libs.ktor.bom))
     implementation(libs.ktor.client.core)

@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.cloudinary.android.MediaManager
 import com.iftikar.outlier.core.designsystem.theme.OutlierTheme
 import com.iftikar.outlier.navigation.OutlierApp
 import dagger.hilt.android.AndroidEntryPoint
@@ -13,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        MediaManager.init(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)

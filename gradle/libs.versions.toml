@@ -1,5 +1,6 @@
 [versions]
 agp = "9.2.1"
+cloudinaryAndroid = "3.1.2"
 coilCompose = "3.5.0"
 coreKtx = "1.19.0"
 datastorePreferences = "1.2.1"
@@ -46,6 +47,7 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-runtime-tracing = { module = "androidx.compose.runtime:runtime-tracing" }
 androidx-tracing-perfetto = { module = "androidx.tracing:tracing-perfetto", version.ref = "tracingPerfetto" }
 androidx-tracing-perfetto-binary = { module = "androidx.tracing:tracing-perfetto-binary", version.ref = "tracingPerfettoBinary" }
+cloudinary-android = { module = "com.cloudinary:cloudinary-android", version.ref = "cloudinaryAndroid" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 descope-kotlin = { module = "com.descope:descope-kotlin", version.ref = "descopeKotlin" }
