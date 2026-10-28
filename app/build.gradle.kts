@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.serialization)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -49,9 +50,6 @@ android {
 }
 
 dependencies {
-    // Cloudinary
-    implementation(libs.cloudinary.android)
-
     // ktor
     implementation(platform(libs.ktor.bom))
     implementation(libs.ktor.client.core)
@@ -80,6 +78,8 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+    // Image Classify
+    implementation(libs.onnxruntime.android)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.activity.compose)

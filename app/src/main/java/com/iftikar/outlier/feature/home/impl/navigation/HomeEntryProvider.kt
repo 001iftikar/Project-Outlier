@@ -32,7 +32,7 @@ fun EntryProviderScope<NavKey>.homeEntry(
                         backStack.add(navKey)
                     }
 
-                    PostNavKey -> {
+                    is PostNavKey -> {
                         backStack.add(navKey)
                     }
                 }

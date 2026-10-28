@@ -20,6 +20,22 @@ class SharedViewModel @Inject constructor(
     private val _drawerUserInfoState = MutableStateFlow(DrawerUserInfoState())
     val drawerUserInfoState = _drawerUserInfoState.asStateFlow()
 
+    var saveAction: (() -> Unit)? = null
+
+    var shouldSavePostState: Boolean = false
+        private set
+
+    fun setShouldSavePostState(save: Boolean, action: (() -> Unit)? = null) {
+        shouldSavePostState = save
+        saveAction = action
+    }
+
+    fun triggerSave() {
+        if (shouldSavePostState) {
+            saveAction?.invoke() // Executes synchronously right now!
+        }
+    }
+
     init {
         fetchDrawerUserInfo()
     }

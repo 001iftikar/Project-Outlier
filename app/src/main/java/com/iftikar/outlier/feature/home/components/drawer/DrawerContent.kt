@@ -81,11 +81,10 @@ fun DrawerContent(
                     ),
                     onClick = { onDrawerItemClick(it) },
                 )
-
                 if (drawerUserInfoState.drawerUserInfo != null) {
                     if (drawerUserInfoState.drawerUserInfo.isDeveloper) {
                         DrawerItemComponent(
-                            DrawerItem(icon = Icons.Outlined.Add, title = "Create Post", navKey = PostNavKey),
+                            DrawerItem(icon = Icons.Outlined.Add, title = "Create Post", navKey = PostNavKey()),
                             onClick = { onDrawerItemClick(it) },
                         )
                     }

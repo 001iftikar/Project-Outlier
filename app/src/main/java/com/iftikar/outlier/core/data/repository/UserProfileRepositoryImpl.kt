@@ -1,5 +1,6 @@
 package com.iftikar.outlier.core.data.repository
 
+import android.util.Log
 import com.iftikar.outlier.core.data.di.IoDispatcher
 import com.iftikar.outlier.core.domain.repository.UserProfileRepository
 import com.iftikar.outlier.core.models.DrawerUserInfo
@@ -27,6 +28,7 @@ class UserProfileRepositoryImpl @Inject constructor(
         } catch (ex: IOException) {
             Result.Error(GenericError.NO_INTERNET)
         } catch (ex: Exception) {
+            Log.e("UserInfo", "getDrawerUserInfo: ${ex.localizedMessage}", )
             Result.Error(GenericError.UNKNOWN)
         }
     }

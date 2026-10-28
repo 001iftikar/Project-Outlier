@@ -64,9 +64,11 @@ fun PostScreen(
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 3),
         onResult = { newUris ->
-            val combinedImages = (state.selectedImages + newUris).distinct().take(3)
+            val combinedImages = (state.stateToSurvive.selectedImages + newUris).distinct().take(3)
 
-            action(PostScreenAction.OnImageSelected(combinedImages))
+            action(PostScreenAction.OnImageSelected(combinedImages.map {
+                it.toString()
+            }))
         })
     LaunchedEffect(true) {
         viewModel.event.collect { event ->
@@ -93,8 +95,8 @@ fun PostScreen(
                     .padding(horizontal = spacing.horizontalPadding),
                 isVisible = true,
                 onDismiss = { action(PostScreenAction.OnFullScreenDismiss) },
-                model = state.selectedImages[state.currentImageIndex],
-                onRemoveClick = { action(PostScreenAction.OnPictureRemove(state.currentImageIndex)) }
+                model = state.stateToSurvive.selectedImages[state.stateToSurvive.currentImageIndex],
+                onRemoveClick = { action(PostScreenAction.OnPictureRemove(state.stateToSurvive.currentImageIndex)) }
             )
         }
         LazyColumn(
@@ -111,7 +113,7 @@ fun PostScreen(
                 ) {
                     TextFieldComponent(
                         modifier = Modifier.fillMaxWidth(),
-                        value = state.title,
+                        value = state.stateToSurvive.title,
                         label = "e.g.: Arch based Linux Distro | Neko OS",
                         onValueChange = { action(PostScreenAction.OnTitleChange(it)) })
                 }
@@ -123,7 +125,7 @@ fun PostScreen(
                 ) {
                     TextFieldComponent(
                         modifier = Modifier.fillMaxWidth(),
-                        value = state.description,
+                        value = state.stateToSurvive.description,
                         label = "What makes your project special?",
                         onValueChange = { action(PostScreenAction.OnDescChange(it)) },
                         singleLine = false,
@@ -136,7 +138,7 @@ fun PostScreen(
                 DetailsInputComponent(
                     text = "SHOW OFF"
                 ) {
-                    if (state.selectedImages.isEmpty()) {
+                    if (state.stateToSurvive.selectedImages.isEmpty()) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -171,8 +173,8 @@ fun PostScreen(
                                 modifier = Modifier.clip(RoundedCornerShape(spacing.roundedCornerPadding))
                             ) {
                                 AsyncImage(
-                                    model = state.selectedImages[state.currentImageIndex],
-                                    contentDescription = "Image ${state.currentImageIndex + 1}",
+                                    model = state.stateToSurvive.selectedImages[state.stateToSurvive.currentImageIndex],
+                                    contentDescription = "Image ${state.stateToSurvive.currentImageIndex + 1}",
                                     contentScale = ContentScale.Fit,
                                     modifier = Modifier
                                         .aspectRatio(16f / 9f)
@@ -187,7 +189,7 @@ fun PostScreen(
                                         .align(Alignment.TopEnd)
                                 ) {
                                     Text(
-                                        text = "${state.currentImageIndex + 1} / ${state.selectedImages.size}",
+                                        text = "${state.stateToSurvive.currentImageIndex + 1} / ${state.stateToSurvive.selectedImages.size}",
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         style = MaterialTheme.typography.bodyMedium,
                                         modifier = Modifier.padding(4.dp)
@@ -199,7 +201,7 @@ fun PostScreen(
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                if (state.currentImageIndex > 0) {
+                                if (state.stateToSurvive.currentImageIndex > 0) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                         contentDescription = "Previous picture preview",
@@ -210,7 +212,7 @@ fun PostScreen(
                                     )
                                     Spacer(Modifier.width(12.dp))
                                 }
-                                if (state.selectedImages.size < 3) {
+                                if (state.stateToSurvive.selectedImages.size < 3) {
                                     Icon(
                                         imageVector = Icons.Default.Upload,
                                         contentDescription = "Upload",
@@ -222,7 +224,7 @@ fun PostScreen(
                                     )
                                     Spacer(Modifier.width(12.dp))
                                 }
-                                if (state.currentImageIndex < state.selectedImages.size - 1) {
+                                if (state.stateToSurvive.currentImageIndex < state.stateToSurvive.selectedImages.size - 1) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                         contentDescription = "Next picture preview",
@@ -244,7 +246,7 @@ fun PostScreen(
                 ) {
                     TextFieldComponent(
                         modifier = Modifier.fillMaxWidth(),
-                        value = state.techStack,
+                        value = state.stateToSurvive.techStack,
                         label = "Rust, QT, C++, GTK",
                         onValueChange = { action(PostScreenAction.OnTechStackChange(it)) },
                         singleLine = false,
@@ -272,7 +274,7 @@ fun PostScreen(
                                 style = MaterialTheme.typography.titleSmall
                             )
                             TextFieldComponent(
-                                value = state.githubUrl,
+                                value = state.stateToSurvive.githubUrl,
                                 label = "Url",
                                 onValueChange = { action(PostScreenAction.OnGithubUrlChange(it)) }
                             )
@@ -288,7 +290,7 @@ fun PostScreen(
                                 style = MaterialTheme.typography.titleSmall
                             )
                             TextFieldComponent(
-                                value = state.liveProjectUrl,
+                                value = state.stateToSurvive.liveProjectUrl,
                                 label = "Url",
                                 onValueChange = { action(PostScreenAction.OnLiveProjectUrlChange(it)) }
                             )
@@ -303,7 +305,7 @@ fun PostScreen(
                 ) {
                     TextFieldComponent(
                         modifier = Modifier.fillMaxWidth(),
-                        value = state.tags,
+                        value = state.stateToSurvive.tags,
                         label = "linux, arch, operating system",
                         onValueChange = { action(PostScreenAction.OnTagsChange(it)) },
                         singleLine = false,
