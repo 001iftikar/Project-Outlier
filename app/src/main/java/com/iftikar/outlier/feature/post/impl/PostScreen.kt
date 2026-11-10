@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Photo
@@ -30,6 +32,7 @@ import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,6 +44,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
@@ -78,6 +84,7 @@ fun PostScreen(
                         .makeText(context, event.error, Toast.LENGTH_LONG)
                         .show()
                 }
+
                 is PostScreenEvent.OnSuccess -> onSuccess(event.message)
             }
         }
@@ -115,6 +122,10 @@ fun PostScreen(
                         modifier = Modifier.fillMaxWidth(),
                         value = state.stateToSurvive.title,
                         label = "e.g.: Arch based Linux Distro | Neko OS",
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next,
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
                         onValueChange = { action(PostScreenAction.OnTitleChange(it)) })
                 }
             }
@@ -126,7 +137,10 @@ fun PostScreen(
                     TextFieldComponent(
                         modifier = Modifier.fillMaxWidth(),
                         value = state.stateToSurvive.description,
-                        label = "What makes your project special?",
+                        label = "What makes your project special? Or fetch from README by putting GitHub Url below",
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
                         onValueChange = { action(PostScreenAction.OnDescChange(it)) },
                         singleLine = false,
                         minLines = 3
@@ -247,7 +261,10 @@ fun PostScreen(
                     TextFieldComponent(
                         modifier = Modifier.fillMaxWidth(),
                         value = state.stateToSurvive.techStack,
-                        label = "Rust, QT, C++, GTK",
+                        label = "Rust, Jetpack, C++",
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
                         onValueChange = { action(PostScreenAction.OnTechStackChange(it)) },
                         singleLine = false,
                         minLines = 2
@@ -259,29 +276,57 @@ fun PostScreen(
                 DetailsInputComponent(
                     text = "PROOF (at least one is needed)"
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalAlignment = Alignment.Start
                     ) {
                         Column(
-                            modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
-                            Text(
-                                text = "Github",
-                                color = MaterialTheme.colorScheme.onBackground,
-                                style = MaterialTheme.typography.titleSmall
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically)
+                            {
+                                Text(
+                                    text = "Github",
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                if (state.showFetchFromReadme) {
+                                    Spacer(Modifier.width(3.dp))
+
+                                    IconButton(
+                                        onClick = {//TODO
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.Article,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                            }
                             TextFieldComponent(
+                                modifier = Modifier.fillMaxWidth(),
                                 value = state.stateToSurvive.githubUrl,
                                 label = "Url",
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Uri,
+                                    imeAction = ImeAction.Next,
+                                    autoCorrectEnabled = false
+                                ),
                                 onValueChange = { action(PostScreenAction.OnGithubUrlChange(it)) }
                             )
+                            state.isValidGitHubUrl?.let { valid ->
+                                if (!valid) {
+                                    Text(
+                                        text = "Please enter a valid GitHub url",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.titleSmall
+                                    )
+                                }
+                            }
                         }
-                        Spacer(Modifier.width(5.dp))
+                        Spacer(Modifier.height(5.dp))
                         Column(
-                            modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             Text(
@@ -290,8 +335,14 @@ fun PostScreen(
                                 style = MaterialTheme.typography.titleSmall
                             )
                             TextFieldComponent(
+                                modifier = Modifier.fillMaxWidth(),
                                 value = state.stateToSurvive.liveProjectUrl,
                                 label = "Url",
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Uri,
+                                    imeAction = ImeAction.Next,
+                                    autoCorrectEnabled = false
+                                ),
                                 onValueChange = { action(PostScreenAction.OnLiveProjectUrlChange(it)) }
                             )
                         }

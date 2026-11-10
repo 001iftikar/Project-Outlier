@@ -4,10 +4,12 @@ import com.iftikar.outlier.core.models.Post
 import com.iftikar.outlier.core.models.SendPost
 import com.iftikar.outlier.core.result.CreatePostError
 import com.iftikar.outlier.core.result.EmptyResult
+import com.iftikar.outlier.core.result.GenericError
 import com.iftikar.outlier.core.result.GetPostError
 import com.iftikar.outlier.core.result.Result
 
 interface PostRepository {
+    suspend fun gitHubUrlCheck(url: String): Result<Boolean, GenericError>
     suspend fun createPost(sendPost: SendPost, userId: String): EmptyResult<CreatePostError>
     suspend fun getPosts(): Result<List<Post>, GetPostError>
 }

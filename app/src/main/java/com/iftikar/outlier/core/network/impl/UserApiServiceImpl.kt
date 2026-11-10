@@ -3,9 +3,15 @@ package com.iftikar.outlier.core.network.impl
 import com.iftikar.outlier.core.network.api.UserApiService
 import com.iftikar.outlier.core.network.model.ApiResponse
 import com.iftikar.outlier.core.network.model.DrawerUserInfoDto
+import com.iftikar.outlier.core.network.model.GitHubUrlDto
+import com.iftikar.outlier.core.network.model.GitHubUrlResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import jakarta.inject.Inject
 import jakarta.inject.Named
 
@@ -15,5 +21,12 @@ class UserApiServiceImpl @Inject constructor(
 ) : UserApiService {
     override suspend fun getDrawerUserInfo(): ApiResponse<DrawerUserInfoDto> {
         return httpClient.get("users/drawer-user-info").body()
+    }
+
+    override suspend fun isGitHubUrlValid(url: String): ApiResponse<GitHubUrlResponse> {
+        return httpClient.post("url-validation/validate-repository") {
+            contentType(ContentType.Application.Json)
+            setBody(GitHubUrlDto(url))
+        }.body<ApiResponse<GitHubUrlResponse>>()
     }
 }

@@ -5,8 +5,9 @@ import kotlinx.serialization.Serializable
 
 data class PostScreenState(
     val stateToSurvive: StateToSurvive = StateToSurvive(),
-
     val showImageInFullScreen: Boolean = false,
+    val isValidGitHubUrl: Boolean? = null,
+    val showFetchFromReadme: Boolean = false,
     val isPosting: Boolean = false
 ) {
     val buttonText: String

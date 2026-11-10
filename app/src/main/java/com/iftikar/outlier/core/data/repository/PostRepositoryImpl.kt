@@ -6,8 +6,10 @@ import com.iftikar.outlier.core.data.di.IoDispatcher
 import com.iftikar.outlier.core.domain.repository.PostRepository
 import com.iftikar.outlier.core.models.Post
 import com.iftikar.outlier.core.models.SendPost
+import com.iftikar.outlier.core.network.api.UserApiService
 import com.iftikar.outlier.core.result.CreatePostError
 import com.iftikar.outlier.core.result.EmptyResult
+import com.iftikar.outlier.core.result.GenericError
 import com.iftikar.outlier.core.result.GetPostError
 import com.iftikar.outlier.core.result.Result
 import io.appwrite.ID
@@ -16,15 +18,37 @@ import io.appwrite.Role
 import io.appwrite.exceptions.AppwriteException
 import io.appwrite.services.TablesDB
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.IOException
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
     private val tablesDB: TablesDB,
+    private val userApiService: UserApiService,
     @param:IoDispatcher private val io: CoroutineDispatcher,
 ) : PostRepository {
-    override suspend fun createPost(sendPost: SendPost, userId: String): EmptyResult<CreatePostError> = withContext(io) {
+    override suspend fun gitHubUrlCheck(url: String): Result<Boolean, GenericError> = withContext(
+        Dispatchers.IO
+    ) {
+        try {
+            val isValid =
+                userApiService.isGitHubUrlValid(url).data ?: return@withContext Result.Error(
+                    GenericError.UNKNOWN
+                )
+            Result.Success(isValid.valid)
+        } catch (ex: IOException) {
+            Result.Error(GenericError.NO_INTERNET)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            Result.Error(GenericError.UNKNOWN)
+        }
+    }
+
+    override suspend fun createPost(
+        sendPost: SendPost,
+        userId: String
+    ): EmptyResult<CreatePostError> = withContext(io) {
         try {
             val data = mapOf(
                 "user" to sendPost.userId,
@@ -33,8 +57,10 @@ class PostRepositoryImpl @Inject constructor(
                 "images" to sendPost.images,
                 "github" to sendPost.githubUrl,
                 "liveLink" to sendPost.liveUrl,
-                "techStack" to sendPost.techStack.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                "tags" to sendPost.tags.split(",").map { it.trim().removePrefix("#") }.filter { it.isNotEmpty() }
+                "techStack" to sendPost.techStack.split(",").map { it.trim() }
+                    .filter { it.isNotEmpty() },
+                "tags" to sendPost.tags.split(",").map { it.trim().removePrefix("#") }
+                    .filter { it.isNotEmpty() }
             )
             tablesDB.createRow(
                 databaseId = DATABASE_ID,
@@ -51,7 +77,7 @@ class PostRepositoryImpl @Inject constructor(
             Result.Error(CreatePostError.NO_INTERNET)
         } catch (ex: AppwriteException) {
             ex.printStackTrace()
-            val error = when(ex.code) {
+            val error = when (ex.code) {
                 401 -> CreatePostError.UNAUTHORIZED
                 409 -> CreatePostError.CONFLICT
                 429 -> CreatePostError.TOO_MANY_REQUESTS
@@ -60,8 +86,7 @@ class PostRepositoryImpl @Inject constructor(
                 else -> CreatePostError.UNKNOWN
             }
             Result.Error(error)
-        }
-        catch (ex: Exception) {
+        } catch (ex: Exception) {
             ex.printStackTrace()
             Result.Error(CreatePostError.UNKNOWN)
         }
