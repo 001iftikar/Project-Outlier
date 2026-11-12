@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DismissibleNavigationDrawer
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +40,7 @@ import com.iftikar.outlier.core.designsystem.theme.LocalSpacing
 import com.iftikar.outlier.feature.home.components.bars.HomeTopBar
 import com.iftikar.outlier.feature.home.components.drawer.DrawerContent
 import com.iftikar.outlier.feature.home.components.post.PostComponent
+import com.iftikar.outlier.feature.home.components.post.PostFeedShimmer
 import com.iftikar.outlier.feature.shared.DrawerUserInfoState
 import kotlinx.coroutines.launch
 
@@ -124,7 +124,9 @@ fun HomeScreen(
                 )
             }) { innerPadding ->
             if (state.isLoading) {
-                CircularProgressIndicator()
+                PostFeedShimmer(
+                   contentPadding = innerPadding
+                )
             } else {
                 if (state.error != null) {
                     Box(
@@ -147,7 +149,7 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(18.dp),
                         contentPadding = innerPadding
                     ) {
-                        items(state.posts, key = {it.id}) { post ->
+                        items(state.posts.posts, key = {it.id}) { post ->
                             PostComponent(
                                 post = post
                             )

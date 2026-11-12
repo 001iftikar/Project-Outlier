@@ -6,13 +6,14 @@ import android.util.Log
 import com.iftikar.outlier.core.data.di.IoDispatcher
 import com.iftikar.outlier.core.data.util.toCompressedImageFile
 import com.iftikar.outlier.core.domain.repository.PostRepository
-import com.iftikar.outlier.core.models.Post
+import com.iftikar.outlier.core.models.HomePosts
 import com.iftikar.outlier.core.models.SendPost
 import com.iftikar.outlier.core.network.api.PostApiService
 import com.iftikar.outlier.core.network.api.UserApiService
 import com.iftikar.outlier.core.network.model.ApiResponse
 import com.iftikar.outlier.core.network.model.CreatePostRequestDto
 import com.iftikar.outlier.core.network.model.CreatePostResponseDto
+import com.iftikar.outlier.core.network.model.asHomePosts
 import com.iftikar.outlier.core.result.CreatePostError
 import com.iftikar.outlier.core.result.EmptyResult
 import com.iftikar.outlier.core.result.GenericError
@@ -219,9 +220,37 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPosts(): Result<List<Post>, GetPostError> =
+    override suspend fun getPosts(size: Int, cursor: String): Result<HomePosts, GetPostError> =
         withContext(io) {
-            TODO("Post feed API is not implemented yet")
+            try {
+                val response = postApiService.getPosts(size, cursor)
+                if (response.data == null) {
+                    when (response.code) {
+                        "INVALID_PAGE_SIZE" -> {
+                            Log.e("Feed-Repo", "getPosts: ${response.message}")
+                            return@withContext Result.Error(GetPostError.DEVELOPER_MESSED_UP)
+                        }
+
+                        "INVALID_CURSOR" -> {
+                            Log.e("Feed-Repo", "getPosts: ${response.message}")
+                            return@withContext Result.Error(GetPostError.SERVER)
+                        }
+
+                        "INTERNAL_SERVER_ERROR" -> {
+                            Log.e("Feed-Repo", "getPosts: ${response.message}")
+                            return@withContext Result.Error(GetPostError.SERVER)
+                        }
+                    }
+                }
+
+                val data = response.data ?: return@withContext Result.Error(GetPostError.UNKNOWN)
+                Result.Success(data.asHomePosts())
+            } catch (ex: IOException) {
+                Result.Error(GetPostError.NO_INTERNET)
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                Result.Error(GetPostError.UNKNOWN)
+            }
         }
 
     private companion object {

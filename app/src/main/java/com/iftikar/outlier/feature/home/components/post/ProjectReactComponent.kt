@@ -18,7 +18,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ProjectReactComponent(
     icon: ImageVector,
-    text: String
+    text: String,
+    contentDescription: String?
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -26,7 +27,7 @@ fun ProjectReactComponent(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null
+            contentDescription = contentDescription
         )
         Spacer(Modifier.width(2.dp))
         Text(

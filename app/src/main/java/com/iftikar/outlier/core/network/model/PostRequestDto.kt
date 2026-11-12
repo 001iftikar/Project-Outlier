@@ -1,4 +1,4 @@
-package com.iftikar.outlier.core.data.model
+package com.iftikar.outlier.core.network.model
 
 import com.iftikar.outlier.core.models.SendPost
 

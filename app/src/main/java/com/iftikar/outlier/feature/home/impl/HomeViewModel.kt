@@ -21,18 +21,20 @@ class HomeViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-//        getPosts()
+        getPosts()
     }
 
     fun onAction(action: HomeScreenAction) {
         when(action) {
-            HomeScreenAction.OnRetry -> getPosts()
+            HomeScreenAction.OnRetry -> {
+                getPosts()
+            }
         }
     }
-    private fun getPosts() {
+    private fun getPosts(cursor: String = "") {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            postRepository.getPosts().onSuccess { posts ->
+            postRepository.getPosts(10, cursor = cursor).onSuccess { posts ->
                 _state.update {
                     it.copy(isLoading = false, posts = posts)
                 }
@@ -42,6 +44,7 @@ class HomeViewModel @Inject constructor(
                     GetPostError.SERVER -> setError("Oops! This is a server error")
                     GetPostError.UNKNOWN -> setError("Oops! Something went wrong")
                     GetPostError.NO_DATA -> setError("No data found")
+                    GetPostError.DEVELOPER_MESSED_UP -> setError("The developer messed up! Contact them.")
                 }
             }
         }

@@ -1,5 +1,5 @@
 package com.iftikar.outlier.core.result
 
 enum class GetPostError : Error {
-    NO_INTERNET, SERVER, UNKNOWN, NO_DATA // 404
+    NO_INTERNET, DEVELOPER_MESSED_UP, SERVER, UNKNOWN, NO_DATA // 404
 }

@@ -3,10 +3,10 @@ package com.iftikar.outlier.feature.home.components.post
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.ModeComment
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.iftikar.outlier.core.mockdatabase.projectReaction
 import com.iftikar.outlier.core.models.Post
 
 @Composable
@@ -26,10 +25,10 @@ fun PostComponent(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        PosterComponent(
-            name = post.user.name,
+        AuthorComponent(
+            name = post.postAuthor.name,
             profilePic = "https://images5.alphacoders.com/651/thumb-1920-651720.jpg",
-            techStack = "Android, Jetpack Compose, Java, C++"
+            techStack = post.postAuthor.techStack.joinToString()
         )
 
         ProjectMainContent(
@@ -41,12 +40,16 @@ fun PostComponent(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            projectReaction.forEach { reaction ->
-                ProjectReactComponent(
-                    icon = reaction.icon,
-                    text = reaction.text
-                )
-            }
+            ProjectReactComponent(
+                icon = Icons.Outlined.FavoriteBorder,
+                text = "${post.likesCount}",
+                contentDescription = "likes"
+            )
+            ProjectReactComponent(
+                icon = Icons.Outlined.ModeComment,
+                text = "${post.commentsCount}",
+                contentDescription = "comments"
+            )
         }
 
         Text(
