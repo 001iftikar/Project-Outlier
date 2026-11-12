@@ -1,8 +1,10 @@
 package com.iftikar.outlier.core.network.di
 
 import com.iftikar.outlier.core.network.api.AuthApiService
+import com.iftikar.outlier.core.network.api.PostApiService
 import com.iftikar.outlier.core.network.api.UserApiService
 import com.iftikar.outlier.core.network.impl.AuthApiServiceImpl
+import com.iftikar.outlier.core.network.impl.PostApiServiceImpl
 import com.iftikar.outlier.core.network.impl.UserApiServiceImpl
 import dagger.Binds
 import dagger.Module
@@ -20,4 +22,8 @@ abstract class ApiServiceModule {
     @Singleton
     @Binds
     abstract fun bindUserApiService(impl: UserApiServiceImpl): UserApiService
+
+    @Singleton
+    @Binds
+    abstract fun bindPostApiService(impl: PostApiServiceImpl): PostApiService
 }

@@ -15,7 +15,6 @@ data class PostRequestDto(
 
 fun PostRequestDto.asExternalModel(imageUrls: List<String>): SendPost {
     return SendPost(
-        userId = userId,
         title = title,
         description = description,
         images = imageUrls,

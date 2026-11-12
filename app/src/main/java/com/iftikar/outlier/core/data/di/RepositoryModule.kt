@@ -1,12 +1,10 @@
 package com.iftikar.outlier.core.data.di
 
-import com.iftikar.outlier.core.data.repository.AppwriteStorageImpl
 import com.iftikar.outlier.core.data.repository.AuthRepositoryImpl
 import com.iftikar.outlier.core.data.repository.PostRepositoryImpl
 import com.iftikar.outlier.core.data.repository.UserProfileRepositoryImpl
 import com.iftikar.outlier.core.domain.repository.AuthRepository
 import com.iftikar.outlier.core.domain.repository.PostRepository
-import com.iftikar.outlier.core.domain.repository.StorageRepository
 import com.iftikar.outlier.core.domain.repository.UserProfileRepository
 import dagger.Binds
 import dagger.Module
@@ -28,8 +26,4 @@ abstract class RepositoryModule {
     @Singleton
     @Binds
     abstract fun bindPostRepository(impl: PostRepositoryImpl): PostRepository
-
-    @Singleton
-    @Binds
-    abstract fun bindAppwriteStorageRepo(impl: AppwriteStorageImpl): StorageRepository
 }
