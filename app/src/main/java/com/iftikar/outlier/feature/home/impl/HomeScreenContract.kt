@@ -11,4 +11,9 @@ data class HomeScreenState(
 
 sealed interface HomeScreenAction {
     data object OnRetry : HomeScreenAction
+    data object OnLogout: HomeScreenAction
+}
+
+sealed interface HomeScreenEvent {
+    data object OnSuccessLogout : HomeScreenEvent
 }

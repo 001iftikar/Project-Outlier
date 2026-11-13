@@ -34,62 +34,91 @@ fun DrawerContent(
     drawerUserInfoState: DrawerUserInfoState,
     drawerState: DrawerState,
     onDrawerItemClick: (NavKey) -> Unit,
-    onRefetchClick: () -> Unit
+    onRefetchClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     val spacing = LocalSpacing.current
+
     DismissibleDrawerSheet(
-        drawerState = drawerState, drawerContainerColor = MaterialTheme.colorScheme.surfaceDim
+        drawerState = drawerState,
+        drawerContainerColor = MaterialTheme.colorScheme.surfaceDim
     ) {
-        if (drawerUserInfoState.isDrawerLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                LoadingSpinner(Modifier.size(36.dp))
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .padding(horizontal = spacing.horizontalPadding),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
+
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+
+            if (drawerUserInfoState.isDrawerLoading) {
+
                 Box(
-                    modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    if (drawerUserInfoState.drawerUserInfo == null) {
-                        TextButton(
-                            onClick = onRefetchClick
-                        ) {
+                    LoadingSpinner(Modifier.size(36.dp))
+                }
+
+            } else {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .padding(horizontal = spacing.horizontalPadding),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (drawerUserInfoState.drawerUserInfo == null) {
+
+                            TextButton(
+                                onClick = onRefetchClick
+                            ) {
+                                Text(
+                                    text = "Hi, failed to get your info, click here",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            }
+
+                        } else {
+
                             Text(
-                                text = "Hi, failed to get your info, click here",
+                                text = "Hi, ${drawerUserInfoState.drawerUserInfo.name}",
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.titleLarge
                             )
                         }
-                    } else {
-                        Text(
-                            text = "Hi, ${drawerUserInfoState.drawerUserInfo.name}",
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleLarge
-                        )
                     }
-                }
-                Spacer(Modifier.height(24.dp))
-                DrawerItemComponent(
-                    DrawerItem(
-                        icon = Icons.Outlined.ChatBubbleOutline,
-                        title = "Inbox",
-                        navKey = InboxNavKey
-                    ),
-                    onClick = { onDrawerItemClick(it) },
-                )
-                if (drawerUserInfoState.drawerUserInfo != null) {
-                    if (drawerUserInfoState.drawerUserInfo.isDeveloper) {
+
+                    Spacer(Modifier.height(24.dp))
+
+                    DrawerItemComponent(
+                        DrawerItem(
+                            icon = Icons.Outlined.ChatBubbleOutline,
+                            title = "Inbox",
+                            navKey = InboxNavKey
+                        ),
+                        onClick = { onDrawerItemClick(it) }
+                    )
+
+                    if (drawerUserInfoState.drawerUserInfo?.isDeveloper == true) {
                         DrawerItemComponent(
-                            DrawerItem(icon = Icons.Outlined.Add, title = "Create Post", navKey = PostNavKey()),
-                            onClick = { onDrawerItemClick(it) },
+                            DrawerItem(
+                                icon = Icons.Outlined.Add,
+                                title = "Create Post",
+                                navKey = PostNavKey()
+                            ),
+                            onClick = { onDrawerItemClick(it) }
                         )
                     }
                 }
             }
+            ProfileComponent(
+                modifier = Modifier.align(Alignment.BottomStart),
+                onProfileClick = onProfileClick
+            )
         }
     }
 }

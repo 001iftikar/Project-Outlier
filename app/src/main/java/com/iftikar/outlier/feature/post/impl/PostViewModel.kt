@@ -227,7 +227,9 @@ class PostViewModel @AssistedInject constructor(
             }
 
             try {
-
+                if (sessionManager.getRefreshToken() == null) return@launch _event.send(
+                    PostScreenEvent.OnError("Authentication failed! Please login again.")
+                )
                 val currentState = _state.value
                 val selectedImages = currentState.stateToSurvive.selectedImages
 

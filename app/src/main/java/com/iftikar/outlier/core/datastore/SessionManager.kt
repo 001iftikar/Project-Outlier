@@ -77,5 +77,4 @@ class SessionManager @Inject constructor(
             prefs.clear()
         }
     }
-
 }

@@ -4,10 +4,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -24,6 +27,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.iftikar.outlier.core.datastore.SessionViewModel
+import com.iftikar.outlier.feature.auth.api.LoginNavKey
 import com.iftikar.outlier.feature.auth.impl.navigation.emailVerificationEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.loginEntry
 import com.iftikar.outlier.feature.auth.impl.navigation.registerEntry
@@ -50,17 +54,17 @@ fun OutlierApp(
         }
     }
 
-//    if (startDestination == null) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .background(MaterialTheme.colorScheme.surface),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            CircularProgressIndicator()
-//        }
-//    } else {
-        val backStack = rememberNavBackStack(HomeNavKey)
+    if (startDestination == null) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else {
+        val backStack = rememberNavBackStack(startDestination ?: LoginNavKey)
         Box(Modifier.fillMaxSize())
         {
             NavDisplay(
@@ -127,5 +131,5 @@ fun OutlierApp(
                     .imePadding()
             )
         }
-
+    }
 }

@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,7 +51,8 @@ fun HomeScreen(
     drawerUserInfoState: DrawerUserInfoState,
     viewModel: HomeViewModel,
     onDrawerItemClick: (NavKey) -> Unit,
-    onRefetchClick: () -> Unit
+    onRefetchClick: () -> Unit,
+    onLogoutSuccess: () -> Unit
 ) {
     val spacing = LocalSpacing.current
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -63,6 +65,13 @@ fun HomeScreen(
     )
     val topbarScrollBehaviour = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
+    LaunchedEffect(true) {
+        viewModel.event.collect { event ->
+            when(event) {
+                HomeScreenEvent.OnSuccessLogout -> onLogoutSuccess()
+            }
+        }
+    }
     DismissibleNavigationDrawer(
         modifier = Modifier
             .fillMaxSize(),
@@ -75,7 +84,8 @@ fun HomeScreen(
                     onDrawerItemClick(navKey)
                     scope.launch { drawerState.close() }
                 },
-                onRefetchClick = onRefetchClick
+                onRefetchClick = onRefetchClick,
+                onProfileClick = { action(HomeScreenAction.OnLogout) }
             )
         },
         gesturesEnabled = true
@@ -125,7 +135,7 @@ fun HomeScreen(
             }) { innerPadding ->
             if (state.isLoading) {
                 PostFeedShimmer(
-                   contentPadding = innerPadding
+                    contentPadding = innerPadding
                 )
             } else {
                 if (state.error != null) {
@@ -149,9 +159,10 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(18.dp),
                         contentPadding = innerPadding
                     ) {
-                        items(state.posts.posts, key = {it.id}) { post ->
+                        items(state.posts.posts, key = { it.id }) { post ->
                             PostComponent(
-                                post = post
+                                post = post,
+                                drawerState
                             )
                         }
                     }

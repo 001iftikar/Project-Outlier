@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.ModeComment
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +19,8 @@ import com.iftikar.outlier.core.models.Post
 
 @Composable
 fun PostComponent(
-    post: Post
+    post: Post,
+    drawerState: DrawerState
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -33,7 +35,8 @@ fun PostComponent(
 
         ProjectMainContent(
             projectImages = post.images,
-            projectTitle = post.title
+            projectTitle = post.title,
+            drawerState = drawerState
         )
 
         Row(
