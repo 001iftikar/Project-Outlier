@@ -18,7 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 fun EntryProviderScope<NavKey>.homeEntry(
     drawerUserInfoState: StateFlow<DrawerUserInfoState>,
     onRefetchClick: () -> Unit,
-    backStack: NavBackStack<NavKey>
+    backStack: NavBackStack<NavKey>,
+    showErrorOnSnackBar: (String) -> Unit
 ) {
     entry<HomeNavKey> {
         val viewModel = hiltViewModel<HomeViewModel>()
@@ -41,7 +42,8 @@ fun EntryProviderScope<NavKey>.homeEntry(
             onLogoutSuccess = {
                 backStack.clear()
                 backStack.add(LoginNavKey)
-            }
+            },
+            showErrorOnSnackBar = showErrorOnSnackBar
         )
     }
 }

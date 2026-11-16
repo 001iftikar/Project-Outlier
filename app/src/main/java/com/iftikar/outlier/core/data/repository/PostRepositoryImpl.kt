@@ -253,6 +253,36 @@ class PostRepositoryImpl @Inject constructor(
             }
         }
 
+    override suspend fun likePost(postId: String): EmptyResult<GenericError> = withContext(io) {
+        try {
+            val response = postApiService.likePost(postId)
+            if (response.status.value in 200..299) {
+                Result.Success(Unit)
+            } else {
+                Result.Error(GenericError.UNKNOWN)
+            }
+        } catch (ex: IOException) {
+            Result.Error(GenericError.NO_INTERNET)
+        } catch (ex: Exception) {
+            Log.e(TAG, "likePost: Failed to like post", ex)
+            Result.Error(GenericError.UNKNOWN)
+        }
+    }
+
+    override suspend fun unlikePost(postId: String): EmptyResult<GenericError> = withContext(io) {
+        try {
+            val response = postApiService.unlikePost(postId)
+            if (response.status.value in 200..299) {
+                Result.Success(Unit)
+            } else {
+                Result.Error(GenericError.UNKNOWN)
+            }
+        } catch (ex: Exception) {
+            Log.e(TAG, "likePost: Failed to unlike post", ex)
+            Result.Error(GenericError.UNKNOWN)
+        }
+    }
+
     private companion object {
         const val TAG = "PostRepository"
         const val MAX_IMAGES = 3

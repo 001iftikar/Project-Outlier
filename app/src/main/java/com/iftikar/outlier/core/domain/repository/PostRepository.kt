@@ -12,4 +12,6 @@ interface PostRepository {
     suspend fun gitHubUrlCheck(url: String): Result<Boolean, GenericError>
     suspend fun createPost(sendPost: SendPost): EmptyResult<CreatePostError>
     suspend fun getPosts(size: Int, cursor: String = ""): Result<HomePosts, GetPostError>
+    suspend fun likePost(postId: String): EmptyResult<GenericError>
+    suspend fun unlikePost(postId: String): EmptyResult<GenericError>
 }

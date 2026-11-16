@@ -6,6 +6,7 @@ import com.iftikar.outlier.core.network.model.CreatePostRequestDto
 import com.iftikar.outlier.core.network.model.PostResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
@@ -84,5 +85,13 @@ class PostApiServiceImpl @Inject constructor(
             parameter("size", size)
             parameter("cursor", cursor)
         }.body()
+    }
+
+    override suspend fun likePost(postId: String): HttpResponse {
+        return httpClient.post("posts/$postId/like").body()
+    }
+
+    override suspend fun unlikePost(postId: String): HttpResponse {
+        return httpClient.delete("posts/$postId/like").body()
     }
 }

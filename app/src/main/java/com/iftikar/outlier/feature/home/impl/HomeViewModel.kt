@@ -33,23 +33,33 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onAction(action: HomeScreenAction) {
-        when(action) {
+        when (action) {
             HomeScreenAction.OnRetry -> {
                 getPosts()
             }
 
             HomeScreenAction.OnLogout -> logout()
+            HomeScreenAction.OnRefresh -> getPosts("", true)
         }
     }
-    private fun getPosts(cursor: String = "") {
+
+    fun onPostReact(react: PostReactionAction) {
+        when (react) {
+            is PostReactionAction.OnCommentClick -> TODO()
+            is PostReactionAction.OnLikeClick -> likePost(react.postId)
+            is PostReactionAction.OnUnlikeClick -> unlikePost(react.postId)
+        }
+    }
+
+    private fun getPosts(cursor: String = "", shouldRefresh: Boolean = false) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
+            _state.update { it.copy(isLoading = true, error = null, isRefreshing = shouldRefresh) }
             postRepository.getPosts(10, cursor = cursor).onSuccess { posts ->
                 _state.update {
-                    it.copy(isLoading = false, posts = posts)
+                    it.copy(isLoading = false, posts = posts, isRefreshing = false)
                 }
             }.onError { ex ->
-                when(ex) {
+                when (ex) {
                     GetPostError.NO_INTERNET -> setError("You need to check the internet connection")
                     GetPostError.SERVER -> setError("Oops! This is a server error")
                     GetPostError.UNKNOWN -> setError("Oops! Something went wrong")
@@ -60,8 +70,78 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun likePost(postId: String) {
+        viewModelScope.launch {
+            val unModifiedPosts = _state.value.posts.posts
+            _state.update { currentState ->
+                currentState.copy(
+                    posts = currentState.posts.copy(
+                        posts = unModifiedPosts.map {
+                            if (it.id == postId) {
+                                it.copy(
+                                    likedByCurrentUser = true,
+                                    likesCount = it.likesCount + 1
+                                )
+                            } else {
+                                it
+                            }
+                        }
+                    )
+                )
+            }
+            postRepository.likePost(postId).onSuccess {
+                //  let's do nothing
+            }.onError { _ ->
+                _state.update { currentState ->
+                    currentState.copy(
+                        posts = currentState.posts.copy(
+                            posts = unModifiedPosts
+                        )
+                    )
+                }
+                _event.send(HomeScreenEvent.ShowSnackBarError("Failed to like post!"))
+            }
+        }
+    }
+
+    private fun unlikePost(postId: String) {
+        viewModelScope.launch {
+            val unModifiedPosts = _state.value.posts.posts
+            _state.update { currentState ->
+                currentState.copy(
+                    posts = currentState.posts.copy(
+                        posts = unModifiedPosts
+                            .map {
+                                if (it.id == postId) {
+                                    it.copy(
+                                        likedByCurrentUser = false,
+                                        likesCount = it.likesCount - 1
+                                    )
+                                } else {
+                                    it
+                                }
+                            }
+                    )
+                )
+            }
+            postRepository.unlikePost(postId).onSuccess {
+                //  let's do nothing
+            }.onError { _ ->
+                _state.update { currentState ->
+                    currentState.copy(
+                        posts = currentState.posts.copy(
+                            posts = unModifiedPosts
+                        )
+                    )
+                }
+                _event.send(HomeScreenEvent.ShowSnackBarError("Failed to unlike post!"))
+            }
+        }
+    }
+
+
     private fun setError(error: String) {
-        _state.update { it.copy(isLoading = false, error = error) }
+        _state.update { it.copy(isLoading = false, error = error, isRefreshing = false) }
     }
 
     private fun logout() {

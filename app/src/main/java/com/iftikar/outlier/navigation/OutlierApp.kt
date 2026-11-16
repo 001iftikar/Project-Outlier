@@ -83,7 +83,14 @@ fun OutlierApp(
                     homeEntry(
                         drawerUserInfoState = drawerUserInfoState,
                         backStack = backStack,
-                        onRefetchClick = { sharedViewModel.fetchDrawerUserInfo() }
+                        onRefetchClick = { sharedViewModel.fetchDrawerUserInfo() },
+                        showErrorOnSnackBar = {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = it
+                                )
+                            }
+                        }
                     )
                     inboxEntry()
                     postEntry(

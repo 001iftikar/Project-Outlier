@@ -17,4 +17,7 @@ interface PostApiService {
         size: Int = 10,
         cursor: String = ""
     ): ApiResponse<PostResponseDto>
+
+    suspend fun likePost(postId: String): HttpResponse
+    suspend fun unlikePost(postId: String): HttpResponse
 }
