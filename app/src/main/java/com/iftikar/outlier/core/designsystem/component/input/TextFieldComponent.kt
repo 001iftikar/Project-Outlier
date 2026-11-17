@@ -1,6 +1,7 @@
 package com.iftikar.outlier.core.designsystem.component.input
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -24,7 +25,9 @@ fun TextFieldComponent(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     singleLine: Boolean = true,
-    minLines: Int = 1
+    minLines: Int = 1,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE
 ) {
     OutlinedTextField(
         modifier = modifier,
@@ -52,6 +55,8 @@ fun TextFieldComponent(
         },
         keyboardOptions = keyboardOptions,
         singleLine = singleLine,
-        minLines = minLines
+        minLines = minLines,
+        keyboardActions = keyboardActions,
+        maxLines = maxLines
     )
 }

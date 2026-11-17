@@ -1,6 +1,8 @@
 package com.iftikar.outlier.core.domain.repository
 
+import com.iftikar.outlier.core.models.Comment
 import com.iftikar.outlier.core.models.HomePosts
+import com.iftikar.outlier.core.models.PostComments
 import com.iftikar.outlier.core.models.SendPost
 import com.iftikar.outlier.core.result.CreatePostError
 import com.iftikar.outlier.core.result.EmptyResult
@@ -14,4 +16,10 @@ interface PostRepository {
     suspend fun getPosts(size: Int, cursor: String = ""): Result<HomePosts, GetPostError>
     suspend fun likePost(postId: String): EmptyResult<GenericError>
     suspend fun unlikePost(postId: String): EmptyResult<GenericError>
+    suspend fun getComments(
+        postId: String,
+        size: Int,
+        cursor: String
+    ): Result<PostComments, GenericError>
+    suspend fun doComment(postId: String, content: String): Result<Pair<Comment, Int>, GenericError>
 }

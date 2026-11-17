@@ -1,7 +1,10 @@
 package com.iftikar.outlier.core.network.api
 
 import com.iftikar.outlier.core.network.model.ApiResponse
+import com.iftikar.outlier.core.network.model.CommentRequestDto
+import com.iftikar.outlier.core.network.model.CommentResponseDto
 import com.iftikar.outlier.core.network.model.CreatePostRequestDto
+import com.iftikar.outlier.core.network.model.DoCommentResponseDto
 import com.iftikar.outlier.core.network.model.PostResponseDto
 import io.ktor.client.statement.HttpResponse
 import java.io.File
@@ -20,4 +23,6 @@ interface PostApiService {
 
     suspend fun likePost(postId: String): HttpResponse
     suspend fun unlikePost(postId: String): HttpResponse
+    suspend fun getPostComments(postId: String, size: Int = 20, cursor: String): ApiResponse<CommentResponseDto>
+    suspend fun doComment(postId: String, requestDto: CommentRequestDto): ApiResponse<DoCommentResponseDto>
 }

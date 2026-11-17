@@ -6,13 +6,17 @@ import android.util.Log
 import com.iftikar.outlier.core.data.di.IoDispatcher
 import com.iftikar.outlier.core.data.util.toCompressedImageFile
 import com.iftikar.outlier.core.domain.repository.PostRepository
+import com.iftikar.outlier.core.models.Comment
 import com.iftikar.outlier.core.models.HomePosts
+import com.iftikar.outlier.core.models.PostComments
 import com.iftikar.outlier.core.models.SendPost
 import com.iftikar.outlier.core.network.api.PostApiService
 import com.iftikar.outlier.core.network.api.UserApiService
 import com.iftikar.outlier.core.network.model.ApiResponse
+import com.iftikar.outlier.core.network.model.CommentRequestDto
 import com.iftikar.outlier.core.network.model.CreatePostRequestDto
 import com.iftikar.outlier.core.network.model.CreatePostResponseDto
+import com.iftikar.outlier.core.network.model.asComment
 import com.iftikar.outlier.core.network.model.asHomePosts
 import com.iftikar.outlier.core.result.CreatePostError
 import com.iftikar.outlier.core.result.EmptyResult
@@ -279,6 +283,41 @@ class PostRepositoryImpl @Inject constructor(
             }
         } catch (ex: Exception) {
             Log.e(TAG, "likePost: Failed to unlike post", ex)
+            Result.Error(GenericError.UNKNOWN)
+        }
+    }
+
+    override suspend fun getComments(postId: String, size: Int, cursor: String): Result<PostComments, GenericError> = withContext(io) {
+        try {
+            val response = postApiService.getPostComments(
+                postId = postId,
+                size = size,
+                cursor = cursor
+            ).data ?: return@withContext Result.Error(GenericError.UNKNOWN)
+            val postComments = PostComments(
+                comments = response.comments.map { it.asComment() },
+                cursor = response.nextCursor ?: "",
+                commentsCount = response.commentsCount
+            )
+            Result.Success(postComments)
+        } catch (ex: Exception) {
+            Log.e("Comments-Repo", "getComments: Failed to get comments", ex)
+            Result.Error(GenericError.UNKNOWN)
+        }
+    }
+
+    override suspend fun doComment(
+        postId: String,
+        content: String
+    ): Result<Pair<Comment, Int>, GenericError> = withContext(io) {
+        try {
+            val response = postApiService.doComment(postId, CommentRequestDto(content))
+            val data = response.data ?: return@withContext Result.Error(GenericError.UNKNOWN)
+            Result.Success(Pair(data.comment.asComment(), data.commentsCount))
+        } catch (ex: IOException) {
+            Result.Error(GenericError.NO_INTERNET)
+        } catch (ex: Exception) {
+            Log.e("Comments-Repo", "doComment: Failed to do comment", ex)
             Result.Error(GenericError.UNKNOWN)
         }
     }

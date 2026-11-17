@@ -12,7 +12,8 @@ data class HomeScreenState(
     val isRefreshing: Boolean = false,
     val pullToRefreshThreshold: Dp = 30.dp,
     val isPaging: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val commentToOpen: String? = null
 )
 
 sealed interface HomeScreenAction {
@@ -20,6 +21,7 @@ sealed interface HomeScreenAction {
     data object OnRefresh : HomeScreenAction
     data object OnPaging : HomeScreenAction
     data object OnLogout: HomeScreenAction
+    data object OnCommentDismiss: HomeScreenAction
 }
 
 sealed interface PostReactionAction {

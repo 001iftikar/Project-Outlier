@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import com.iftikar.outlier.core.designsystem.theme.LocalSpacing
 import com.iftikar.outlier.feature.home.components.bars.HomeTopBar
+import com.iftikar.outlier.feature.home.components.comment.CommentsBottomSheet
 import com.iftikar.outlier.feature.home.components.drawer.DrawerContent
 import com.iftikar.outlier.feature.home.components.post.PostComponent
 import com.iftikar.outlier.feature.home.components.post.PostFeedShimmer
@@ -93,6 +94,10 @@ fun HomeScreen(
         label = "pullToRefreshIndicatorHeight"
     )
     val lazyListState = rememberLazyListState()
+
+    // Comment part
+    val commentState by viewModel.commentState.collectAsStateWithLifecycle()
+    val commentAction = viewModel::onPostCommentAction
     LaunchedEffect(
         lazyListState,
         state.posts.size,
@@ -284,6 +289,46 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+        if (state.commentToOpen != null) {
+            CommentsBottomSheet(
+                comments = commentState.comments,
+                optimisticComments = commentState.optimisticComments,
+
+                isLoading = commentState.isLoading,
+                isPaging = commentState.isPaging,
+                hasMore = !commentState.cursor.isNullOrBlank(),
+
+                error = commentState.error,
+
+                commentText = commentState.comment,
+                onCommentTextChange = {
+                    commentAction(PostCommentAction.OnCommentChange(it))
+                },
+
+                onSendComment = {
+                    commentAction(
+                        PostCommentAction.DoComment(
+                            state.commentToOpen!!,
+                            drawerUserInfoState.drawerUserInfo?.name ?: "User"
+                        )
+                    )
+                },
+
+                onLoadMore = {
+                    commentAction(
+                        PostCommentAction.OnLoadMore(
+                            state.commentToOpen!!
+                        )
+                    )
+                },
+
+                onDismiss = {
+                    action(HomeScreenAction.OnCommentDismiss)
+                },
+                event = viewModel.doCommentEvent,
+                onCommentAddedFailed = showErrorOnSnackBar
+            )
         }
     }
 }
