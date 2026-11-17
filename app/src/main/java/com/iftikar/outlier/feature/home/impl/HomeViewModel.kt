@@ -40,6 +40,10 @@ class HomeViewModel @Inject constructor(
 
             HomeScreenAction.OnLogout -> logout()
             HomeScreenAction.OnRefresh -> getPosts("", true)
+            HomeScreenAction.OnPaging -> getPosts(
+                cursor = _state.value.cursor ?: "",
+                isPaging = true
+            )
         }
     }
 
@@ -51,12 +55,33 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getPosts(cursor: String = "", shouldRefresh: Boolean = false) {
+    private fun getPosts(
+        cursor: String = "",
+        shouldRefresh: Boolean = false,
+        isPaging: Boolean = false
+    ) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null, isRefreshing = shouldRefresh) }
-            postRepository.getPosts(10, cursor = cursor).onSuccess { posts ->
+            _state.update {
+                it.copy(
+                    isLoading = !isPaging,
+                    error = null,
+                    isRefreshing = shouldRefresh,
+                    isPaging = isPaging
+                )
+            }
+            postRepository.getPosts(5, cursor = cursor).onSuccess { (posts, cursor) ->
                 _state.update {
-                    it.copy(isLoading = false, posts = posts, isRefreshing = false)
+                    it.copy(
+                        isLoading = false,
+                        isRefreshing = false,
+                        isPaging = false,
+                        posts = if (shouldRefresh) {
+                            posts
+                        } else {
+                            it.posts + posts
+                        },
+                        cursor = cursor
+                    )
                 }
             }.onError { ex ->
                 when (ex) {
@@ -72,21 +97,19 @@ class HomeViewModel @Inject constructor(
 
     private fun likePost(postId: String) {
         viewModelScope.launch {
-            val unModifiedPosts = _state.value.posts.posts
+            val unModifiedPosts = _state.value.posts
             _state.update { currentState ->
                 currentState.copy(
-                    posts = currentState.posts.copy(
-                        posts = unModifiedPosts.map {
-                            if (it.id == postId) {
-                                it.copy(
-                                    likedByCurrentUser = true,
-                                    likesCount = it.likesCount + 1
-                                )
-                            } else {
-                                it
-                            }
+                    posts = unModifiedPosts.map {
+                        if (it.id == postId) {
+                            it.copy(
+                                likedByCurrentUser = true,
+                                likesCount = it.likesCount + 1
+                            )
+                        } else {
+                            it
                         }
-                    )
+                    }
                 )
             }
             postRepository.likePost(postId).onSuccess {
@@ -94,9 +117,7 @@ class HomeViewModel @Inject constructor(
             }.onError { _ ->
                 _state.update { currentState ->
                     currentState.copy(
-                        posts = currentState.posts.copy(
-                            posts = unModifiedPosts
-                        )
+                        posts = unModifiedPosts
                     )
                 }
                 _event.send(HomeScreenEvent.ShowSnackBarError("Failed to like post!"))
@@ -106,22 +127,20 @@ class HomeViewModel @Inject constructor(
 
     private fun unlikePost(postId: String) {
         viewModelScope.launch {
-            val unModifiedPosts = _state.value.posts.posts
+            val unModifiedPosts = _state.value.posts
             _state.update { currentState ->
                 currentState.copy(
-                    posts = currentState.posts.copy(
-                        posts = unModifiedPosts
-                            .map {
-                                if (it.id == postId) {
-                                    it.copy(
-                                        likedByCurrentUser = false,
-                                        likesCount = it.likesCount - 1
-                                    )
-                                } else {
-                                    it
-                                }
+                    posts = unModifiedPosts
+                        .map {
+                            if (it.id == postId) {
+                                it.copy(
+                                    likedByCurrentUser = false,
+                                    likesCount = it.likesCount - 1
+                                )
+                            } else {
+                                it
                             }
-                    )
+                        }
                 )
             }
             postRepository.unlikePost(postId).onSuccess {
@@ -129,9 +148,7 @@ class HomeViewModel @Inject constructor(
             }.onError { _ ->
                 _state.update { currentState ->
                     currentState.copy(
-                        posts = currentState.posts.copy(
-                            posts = unModifiedPosts
-                        )
+                        posts = unModifiedPosts
                     )
                 }
                 _event.send(HomeScreenEvent.ShowSnackBarError("Failed to unlike post!"))

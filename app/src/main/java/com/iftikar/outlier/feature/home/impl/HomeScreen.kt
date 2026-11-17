@@ -1,6 +1,5 @@
 package com.iftikar.outlier.feature.home.impl
 
-import android.util.Log
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -20,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DismissibleNavigationDrawer
@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -56,6 +57,7 @@ import com.iftikar.outlier.feature.home.components.drawer.DrawerContent
 import com.iftikar.outlier.feature.home.components.post.PostComponent
 import com.iftikar.outlier.feature.home.components.post.PostFeedShimmer
 import com.iftikar.outlier.feature.shared.DrawerUserInfoState
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,8 +92,37 @@ fun HomeScreen(
         ),
         label = "pullToRefreshIndicatorHeight"
     )
-    LaunchedEffect(refreshState.isAnimating) {
-        Log.d("Refresh", "HomeScreen: ${refreshState.isAnimating}")
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(
+        lazyListState,
+        state.posts.size,
+        state.cursor,
+        state.isLoading,
+        state.isPaging
+    ) {
+        snapshotFlow {
+            val layoutInfo = lazyListState.layoutInfo
+
+            val lastVisibleItem = layoutInfo.visibleItemsInfo
+                .lastOrNull()?.index ?: -1
+
+            val totalItems = layoutInfo.totalItemsCount
+
+            totalItems > 0 &&
+                    lastVisibleItem >= (totalItems - 3).coerceAtLeast(0)
+        }.distinctUntilChanged()
+            .collect { isNearEnd ->
+
+                if (
+                    isNearEnd &&
+                    state.posts.isNotEmpty() &&
+                    !state.isLoading &&
+                    !state.isPaging &&
+                    !state.cursor.isNullOrBlank()
+                ) {
+                    action(HomeScreenAction.OnPaging)
+                }
+            }
     }
     LaunchedEffect(true) {
         viewModel.event.collect { event ->
@@ -225,10 +256,11 @@ fun HomeScreen(
                                     .padding(
                                         horizontal = spacing.horizontalPadding
                                     ),
+                                state = lazyListState,
                                 verticalArrangement = Arrangement.spacedBy(18.dp)
                             ) {
                                 items(
-                                    state.posts.posts,
+                                    state.posts,
                                     key = { it.id }
                                 ) { post ->
                                     PostComponent(
@@ -237,10 +269,19 @@ fun HomeScreen(
                                         onPostReactClick = postReact
                                     )
                                 }
+                                if (state.isPaging) {
+                                    item {
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator()
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-
                 }
             }
         }

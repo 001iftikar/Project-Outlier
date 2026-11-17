@@ -2,20 +2,23 @@ package com.iftikar.outlier.feature.home.impl
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.iftikar.outlier.core.models.HomePosts
+import com.iftikar.outlier.core.models.Post
 
 data class HomeScreenState(
-    val posts: HomePosts = HomePosts(),
+    val posts: List<Post> = emptyList(),
+    val cursor: String? = null,
     val imageIndex: Int = 0,
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val pullToRefreshThreshold: Dp = 30.dp,
+    val isPaging: Boolean = false,
     val error: String? = null
 )
 
 sealed interface HomeScreenAction {
     data object OnRetry : HomeScreenAction
     data object OnRefresh : HomeScreenAction
+    data object OnPaging : HomeScreenAction
     data object OnLogout: HomeScreenAction
 }
 

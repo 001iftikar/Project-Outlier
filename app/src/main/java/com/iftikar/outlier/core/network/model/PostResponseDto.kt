@@ -65,7 +65,7 @@ fun PostAuthorResponse.asPostAuthor(): PostAuthor {
 fun PostResponseDto.asHomePosts(): HomePosts {
     return HomePosts(
         posts = this.posts.map { it.asPost() },
-        cursors = setOf(this.nextCursor)
+        cursor = this.nextCursor
     )
 }
 
