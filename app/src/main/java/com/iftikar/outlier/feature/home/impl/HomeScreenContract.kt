@@ -33,4 +33,5 @@ sealed interface PostReactionAction {
 sealed interface HomeScreenEvent {
     data object OnSuccessLogout : HomeScreenEvent
     data class ShowSnackBarError(val err: String) : HomeScreenEvent
+//    data object OnRefreshTriggeredByHomePress : HomeScreenEvent
 }

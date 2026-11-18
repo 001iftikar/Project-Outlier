@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.ModeComment
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,7 +22,6 @@ import com.iftikar.outlier.feature.home.impl.PostReactionAction
 @Composable
 fun PostComponent(
     post: Post,
-    drawerState: DrawerState,
     onPostReactClick: (PostReactionAction) -> Unit
 ) {
     Column(
@@ -39,8 +37,7 @@ fun PostComponent(
 
         ProjectMainContent(
             projectImages = post.images,
-            projectTitle = post.title,
-            drawerState = drawerState
+            projectTitle = post.title
         )
 
         Row(
@@ -48,11 +45,23 @@ fun PostComponent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProjectReactComponent(
-                icon = if (!post.likedByCurrentUser) Icons.Outlined.FavoriteBorder else Icons.Default.Favorite,
-                tint = if (!post.likedByCurrentUser) LocalContentColor.current else MaterialTheme.colorScheme.primary,
+                icon = if (!post.likedByCurrentUser) {
+                    Icons.Outlined.FavoriteBorder
+                } else {
+                    Icons.Default.Favorite
+                },
+                tint = if (!post.likedByCurrentUser) {
+                    LocalContentColor.current
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
                 text = "${post.likesCount}",
                 onClick = if (!post.likedByCurrentUser) {
-                    { onPostReactClick(PostReactionAction.OnLikeClick(post.id)) }
+                    {
+                        onPostReactClick(
+                            PostReactionAction.OnLikeClick(post.id)
+                        )
+                    }
                 } else {
                     {
                         onPostReactClick(
@@ -62,10 +71,15 @@ fun PostComponent(
                 },
                 contentDescription = "likes"
             )
+
             ProjectReactComponent(
                 icon = Icons.Outlined.ModeComment,
                 text = "${post.commentsCount}",
-                onClick = { onPostReactClick(PostReactionAction.OnCommentClick(post.id)) },
+                onClick = {
+                    onPostReactClick(
+                        PostReactionAction.OnCommentClick(post.id)
+                    )
+                },
                 contentDescription = "comments"
             )
         }
@@ -78,24 +92,3 @@ fun PostComponent(
         )
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

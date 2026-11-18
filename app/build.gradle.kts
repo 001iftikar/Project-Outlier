@@ -50,6 +50,16 @@ android {
 }
 
 dependencies {
+    // Haze
+    // Core infrastructure and Blur
+    implementation("dev.chrisbanes.haze:haze:2.1.0")
+    implementation("dev.chrisbanes.haze:haze-blur:2.1.0")
+
+    // Optional: ready-made Blur styles
+    implementation("dev.chrisbanes.haze:haze-blur-materials:2.1.0")
+    // Haze Glass
+    implementation("dev.chrisbanes.haze:haze:2.1.0")
+    implementation("dev.chrisbanes.haze:haze-glass:2.1.0")
     // ktor
     implementation(platform(libs.ktor.bom))
     implementation(libs.ktor.client.core)

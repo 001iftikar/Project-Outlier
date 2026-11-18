@@ -1,15 +1,13 @@
 package com.iftikar.outlier.feature.home.components.bars
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,13 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
 import com.iftikar.outlier.core.designsystem.component.bars.OutlierTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopBar(
-    drawerState: DrawerState,
-    onMenuClick: () -> Unit,
+    isDeveloper: Boolean,
+    onCreatePostClick: () -> Unit,
     onHeartClick: () -> Unit = {},
     scrollBehavior: TopAppBarScrollBehavior
 ) {
@@ -38,21 +37,18 @@ fun HomeTopBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = onMenuClick
-                ) {
-                    Crossfade(
-                        targetState = drawerState.targetValue,
-                        animationSpec = tween(durationMillis = 200),
-                        label = "Menu Icon Fade"
-                    ) { targetDrawerState ->
-                        if (targetDrawerState == DrawerValue.Closed) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Open Menu"
-                            )
-                        }
+
+                if (isDeveloper) {
+                    IconButton(
+                        onClick = onCreatePostClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Add,
+                            contentDescription = "Create post"
+                        )
                     }
+                } else {
+                    Spacer(Modifier.size(48.dp))
                 }
 
                 Text(
@@ -74,25 +70,3 @@ fun HomeTopBar(
         scrollBehavior = scrollBehavior
     )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

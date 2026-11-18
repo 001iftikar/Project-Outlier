@@ -1,7 +1,7 @@
 package com.iftikar.outlier.feature.inbox.api
 
-import androidx.navigation3.runtime.NavKey
+import com.iftikar.outlier.navigation.MainTabNavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-object InboxNavKey : NavKey
+object InboxNavKey : MainTabNavKey

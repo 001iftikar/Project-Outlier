@@ -91,7 +91,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update {
                 it.copy(
-                    isLoading = !isPaging,
+                    isLoading = !isPaging && !shouldRefresh,
                     error = null,
                     isRefreshing = shouldRefresh,
                     isPaging = isPaging
@@ -315,6 +315,8 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+
 
     private fun logout() {
         viewModelScope.launch {

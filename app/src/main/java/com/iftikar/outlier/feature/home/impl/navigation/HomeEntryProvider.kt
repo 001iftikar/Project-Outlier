@@ -1,5 +1,6 @@
 package com.iftikar.outlier.feature.home.impl.navigation
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -10,39 +11,40 @@ import com.iftikar.outlier.feature.auth.api.LoginNavKey
 import com.iftikar.outlier.feature.home.api.HomeNavKey
 import com.iftikar.outlier.feature.home.impl.HomeScreen
 import com.iftikar.outlier.feature.home.impl.HomeViewModel
-import com.iftikar.outlier.feature.inbox.api.InboxNavKey
 import com.iftikar.outlier.feature.post.api.PostNavKey
 import com.iftikar.outlier.feature.shared.DrawerUserInfoState
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 fun EntryProviderScope<NavKey>.homeEntry(
     drawerUserInfoState: StateFlow<DrawerUserInfoState>,
-    onRefetchClick: () -> Unit,
+    listState: LazyListState,
     backStack: NavBackStack<NavKey>,
+    homeReselectEvents: SharedFlow<Unit>,
     showErrorOnSnackBar: (String) -> Unit
 ) {
     entry<HomeNavKey> {
+
         val viewModel = hiltViewModel<HomeViewModel>()
+
         val state by drawerUserInfoState.collectAsStateWithLifecycle()
+
         HomeScreen(
             drawerUserInfoState = state,
             viewModel = viewModel,
-            onDrawerItemClick = { navKey ->
-                when (navKey) {
-                    InboxNavKey -> {
-                        backStack.add(navKey)
-                    }
+            listState = listState,
 
-                    is PostNavKey -> {
-                        backStack.add(navKey)
-                    }
+            onCreatePostClick = {
+                if (backStack.lastOrNull() !is PostNavKey) {
+                    backStack.add(PostNavKey())
                 }
             },
-            onRefetchClick = onRefetchClick,
+
             onLogoutSuccess = {
                 backStack.clear()
                 backStack.add(LoginNavKey)
             },
+            homeReselectEvents = homeReselectEvents,
             showErrorOnSnackBar = showErrorOnSnackBar
         )
     }
