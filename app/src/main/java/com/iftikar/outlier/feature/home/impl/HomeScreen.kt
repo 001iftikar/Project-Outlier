@@ -32,10 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,9 +46,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iftikar.outlier.core.designsystem.theme.LocalSpacing
 import com.iftikar.outlier.feature.home.components.bars.HomeTopBar
 import com.iftikar.outlier.feature.home.components.comment.CommentsBottomSheet
-import com.iftikar.outlier.feature.home.components.post.PostComponent
 import com.iftikar.outlier.feature.home.components.post.PostFeedShimmer
 import com.iftikar.outlier.feature.shared.DrawerUserInfoState
+import com.iftikar.outlier.feature.shared.components.post.PostComponent
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 

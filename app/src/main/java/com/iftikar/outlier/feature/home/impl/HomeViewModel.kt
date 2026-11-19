@@ -186,7 +186,7 @@ class HomeViewModel @Inject constructor(
 
 
     private fun setError(error: String) {
-        _state.update { it.copy(isLoading = false, error = error, isRefreshing = false) }
+        _state.update { it.copy(isLoading = false, error = error, isRefreshing = false, isPaging = false) }
     }
 
     // Comment part

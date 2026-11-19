@@ -7,7 +7,6 @@ import com.iftikar.outlier.core.models.Post
 data class HomeScreenState(
     val posts: List<Post> = emptyList(),
     val cursor: String? = null,
-    val imageIndex: Int = 0,
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val pullToRefreshThreshold: Dp = 30.dp,

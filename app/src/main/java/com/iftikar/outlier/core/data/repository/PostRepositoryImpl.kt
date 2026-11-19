@@ -9,6 +9,7 @@ import com.iftikar.outlier.core.domain.repository.PostRepository
 import com.iftikar.outlier.core.models.Comment
 import com.iftikar.outlier.core.models.HomePosts
 import com.iftikar.outlier.core.models.PostComments
+import com.iftikar.outlier.core.models.SearchResult
 import com.iftikar.outlier.core.models.SendPost
 import com.iftikar.outlier.core.network.api.PostApiService
 import com.iftikar.outlier.core.network.api.UserApiService
@@ -18,6 +19,7 @@ import com.iftikar.outlier.core.network.model.CreatePostRequestDto
 import com.iftikar.outlier.core.network.model.CreatePostResponseDto
 import com.iftikar.outlier.core.network.model.asComment
 import com.iftikar.outlier.core.network.model.asHomePosts
+import com.iftikar.outlier.core.network.model.asPost
 import com.iftikar.outlier.core.result.CreatePostError
 import com.iftikar.outlier.core.result.EmptyResult
 import com.iftikar.outlier.core.result.GenericError
@@ -319,6 +321,58 @@ class PostRepositoryImpl @Inject constructor(
         } catch (ex: Exception) {
             Log.e("Comments-Repo", "doComment: Failed to do comment", ex)
             Result.Error(GenericError.UNKNOWN)
+        }
+    }
+
+    override suspend fun searchPosts(
+        query: String,
+        size: Int,
+        cursor: String,
+        matchedTechStackInsteadCursor: String
+    ): Result<SearchResult, GetPostError> = withContext(io) {
+        try {
+            val response = postApiService.searchPosts(
+                query = query,
+                size = size,
+                cursor = cursor,
+                matchedTechStackInsteadCursor = matchedTechStackInsteadCursor
+            )
+            if (response.data == null) {
+                when (response.code) {
+                    "INVALID_PAGE_SIZE" -> {
+                        Log.e("Search-Repo", "getPosts: ${response.message}")
+                        return@withContext Result.Error(GetPostError.DEVELOPER_MESSED_UP)
+                    }
+
+                    "INVALID_CURSOR" -> {
+                        Log.e("Search-Repo", "getPosts: ${response.message}")
+                        return@withContext Result.Error(GetPostError.SERVER)
+                    }
+
+                    "INTERNAL_SERVER_ERROR" -> {
+                        Log.e("Search-Repo", "getPosts: ${response.message}")
+                        return@withContext Result.Error(GetPostError.SERVER)
+                    }
+                    else -> return@withContext Result.Error(GetPostError.UNKNOWN)
+                }
+            }
+            val data = response.data
+            val searchResult = SearchResult(
+                searchMode = data.searchMode,
+                matchedTerms = data.matchedTerms,
+                posts = data.posts.map { it.asPost() },
+                matchedTechStackInstead = data.matchedTechStackInstead.map { it.post.asPost() },
+                nextCursor = data.nextCursor,
+                hasMore = data.hasMore,
+                nextMatchedTechStackInsteadCursor = data.nextMatchedTechStackInsteadCursor,
+                hasMoreMatchedTechStackInstead = data.hasMoreMatchedTechStackInstead
+            )
+            Result.Success(searchResult)
+        } catch (ex: IOException) {
+            Result.Error(GetPostError.NO_INTERNET)
+        } catch (ex: Exception) {
+            Log.e("Search-Repo", "getPosts: Failed to search posts", ex)
+            Result.Error(GetPostError.UNKNOWN)
         }
     }
 

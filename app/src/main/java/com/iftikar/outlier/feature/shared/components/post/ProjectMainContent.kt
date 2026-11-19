@@ -1,4 +1,4 @@
-package com.iftikar.outlier.feature.home.components.post
+package com.iftikar.outlier.feature.shared.components.post
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

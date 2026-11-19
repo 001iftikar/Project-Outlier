@@ -44,6 +44,8 @@ import com.iftikar.outlier.feature.home.api.HomeNavKey
 import com.iftikar.outlier.feature.home.impl.navigation.homeEntry
 import com.iftikar.outlier.feature.inbox.impl.navigation.inboxEntry
 import com.iftikar.outlier.feature.post.impl.navigation.postEntry
+import com.iftikar.outlier.feature.search.api.SearchNavKey
+import com.iftikar.outlier.feature.search.impl.navigation.searchEntry
 import com.iftikar.outlier.feature.shared.SharedViewModel
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
@@ -68,6 +70,10 @@ fun OutlierApp(
     val homeReselectEvents = remember {
         MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     }
+    val searchReselectEvent = remember {
+        MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    }
+
 
     val scope = rememberCoroutineScope()
 
@@ -98,6 +104,9 @@ fun OutlierApp(
 
         // Shared home feed state.
         val homeListState = rememberLazyListState()
+        val noSearchListState = rememberLazyListState()
+        val searchListState = rememberLazyListState()
+        var assignSearchListState by remember { mutableStateOf(false) }
 
         // Haze state used by the bottom navigation bar.
         val hazeState = rememberHazeState()
@@ -110,15 +119,12 @@ fun OutlierApp(
             mutableStateOf(true)
         }
 
-        /*
-         * Memento-style scroll direction detection.
-         *
-         * Scrolling down -> Hide bottom bar.
-         * Scrolling up   -> Show bottom bar.
-         *
-         * Reset visibility whenever the main tab changes.
-         */
-        LaunchedEffect(homeListState, currentTab) {
+        val listStateToUse = when (backStack.lastOrNull()) {
+            HomeNavKey -> homeListState
+            SearchNavKey -> if (assignSearchListState) searchListState else noSearchListState
+            else -> rememberLazyListState()
+        }
+        LaunchedEffect(listStateToUse, currentTab) {
 
             isScrollingUp = true
 
@@ -126,14 +132,14 @@ fun OutlierApp(
                 return@LaunchedEffect
             }
 
-            var previousIndex = homeListState.firstVisibleItemIndex
+            var previousIndex = listStateToUse.firstVisibleItemIndex
 
             var previousScrollOffset =
-                homeListState.firstVisibleItemScrollOffset
+                listStateToUse.firstVisibleItemScrollOffset
 
             snapshotFlow {
-                homeListState.firstVisibleItemIndex to
-                        homeListState.firstVisibleItemScrollOffset
+                listStateToUse.firstVisibleItemIndex to
+                        listStateToUse.firstVisibleItemScrollOffset
             }
                 .drop(1)
                 .collect { (index, offset) ->
@@ -191,7 +197,8 @@ fun OutlierApp(
                             navigateToTab(
                                 backStack,
                                 HomeNavKey,
-                                onHomeReselected = {}
+                                onHomeReselected = {},
+                                onSearchReselected = {}
                             )
                         }
                     )
@@ -214,7 +221,12 @@ fun OutlierApp(
                         }
                     )
 
-//                    searchEntry()
+                    searchEntry(
+                        noSearchListState = noSearchListState,
+                        searchListState = searchListState,
+                        searchReselectEvent = searchReselectEvent,
+                        assignSearchListState = { assignSearchListState = it }
+                    )
 
                     inboxEntry()
 
@@ -271,6 +283,9 @@ fun OutlierApp(
                             destination = destination,
                             onHomeReselected = {
                                 homeReselectEvents.tryEmit(Unit)
+                            },
+                            onSearchReselected = {
+                                searchReselectEvent.tryEmit(Unit)
                             }
                         )
                     },
@@ -307,11 +322,13 @@ fun OutlierApp(
 private fun navigateToTab(
     backStack: NavBackStack<NavKey>,
     destination: MainTabNavKey,
-    onHomeReselected: () -> Unit
+    onHomeReselected: () -> Unit,
+    onSearchReselected: () -> Unit
 ) {
     if (backStack.lastOrNull() == destination) {
-        if (destination == HomeNavKey) {
-            onHomeReselected()
+        when (destination) {
+            HomeNavKey -> onHomeReselected()
+            SearchNavKey -> onSearchReselected()
         }
         return
     }

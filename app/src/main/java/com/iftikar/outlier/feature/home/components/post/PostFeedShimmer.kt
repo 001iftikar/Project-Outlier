@@ -1,14 +1,6 @@
 package com.iftikar.outlier.feature.home.components.post
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,18 +13,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.iftikar.outlier.feature.shared.components.shimmer.ShimmerBlock
+import com.iftikar.outlier.feature.shared.components.shimmer.rememberShimmerBrush
 
 @Composable
 fun PostFeedShimmer(
@@ -192,64 +180,4 @@ private fun PostShimmerItem(
     }
 }
 
-@Composable
-private fun ShimmerBlock(
-    modifier: Modifier = Modifier,
-    brush: Brush,
-    shape: Shape = RoundedCornerShape(6.dp)
-) {
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(brush)
-    )
-}
 
-@Composable
-private fun rememberShimmerBrush(): Brush {
-
-    val transition = rememberInfiniteTransition(
-        label = "post-feed-shimmer"
-    )
-
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
-    val screenWidthPx = with(LocalDensity.current) {
-        screenWidth.toPx()
-    }
-
-    val shimmerOffset by transition.animateFloat(
-        initialValue = -screenWidthPx,
-        targetValue = screenWidthPx * 2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 1300,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "shimmer-offset"
-    )
-
-    val baseColor = MaterialTheme.colorScheme.surfaceVariant
-
-    val highlightColor = MaterialTheme.colorScheme.onSurface.copy(
-        alpha = 0.10f
-    )
-
-    return Brush.linearGradient(
-        colors = listOf(
-            baseColor,
-            highlightColor,
-            baseColor
-        ),
-        start = androidx.compose.ui.geometry.Offset(
-            x = shimmerOffset - 250f,
-            y = 0f
-        ),
-        end = androidx.compose.ui.geometry.Offset(
-            x = shimmerOffset,
-            y = 250f
-        )
-    )
-}

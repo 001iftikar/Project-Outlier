@@ -7,6 +7,7 @@ import com.iftikar.outlier.core.network.model.CommentResponseDto
 import com.iftikar.outlier.core.network.model.CreatePostRequestDto
 import com.iftikar.outlier.core.network.model.DoCommentResponseDto
 import com.iftikar.outlier.core.network.model.PostResponseDto
+import com.iftikar.outlier.core.network.model.SearchResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -110,6 +111,20 @@ class PostApiServiceImpl @Inject constructor(
         return httpClient.post("posts/$postId/comments") {
             contentType(ContentType.Application.Json)
             setBody(requestDto)
+        }.body()
+    }
+
+    override suspend fun searchPosts(
+        query: String,
+        size: Int,
+        cursor: String,
+        matchedTechStackInsteadCursor: String
+    ): ApiResponse<SearchResponseDto> {
+        return httpClient.get("posts/search") {
+            parameter("q", query)
+            parameter("size", size)
+            parameter("cursor", cursor)
+            parameter("matchedTechStackInsteadCursor", matchedTechStackInsteadCursor)
         }.body()
     }
 }
