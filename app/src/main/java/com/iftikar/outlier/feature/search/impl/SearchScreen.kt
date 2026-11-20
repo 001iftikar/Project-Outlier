@@ -3,6 +3,7 @@ package com.iftikar.outlier.feature.search.impl
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,17 +34,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.iftikar.outlier.R
+import com.iftikar.outlier.core.designsystem.component.post.EmptyPostsComponent
+import com.iftikar.outlier.core.designsystem.component.post.PostComponent
+import com.iftikar.outlier.core.designsystem.component.post.ProjectMainContent
+import com.iftikar.outlier.core.designsystem.component.shimmer.ShimmerBlock
+import com.iftikar.outlier.core.designsystem.component.shimmer.rememberShimmerBrush
 import com.iftikar.outlier.core.designsystem.theme.LocalSpacing
 import com.iftikar.outlier.feature.search.components.SearchTopBar
-import com.iftikar.outlier.feature.shared.components.post.PostComponent
-import com.iftikar.outlier.feature.shared.components.post.ProjectMainContent
-import com.iftikar.outlier.feature.shared.components.shimmer.ShimmerBlock
-import com.iftikar.outlier.feature.shared.components.shimmer.rememberShimmerBrush
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -318,28 +322,56 @@ private fun UnsearchedResult(
                                 }
                             )
                             .testTag("home_posts")
-                            .padding(
-                                horizontal = spacing.horizontalPadding
-                            ),
+                            .padding(horizontal = spacing.horizontalPadding),
                         state = listState,
                         verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
-                        items(
-                            state.posts,
-                            key = { it.id }
-                        ) { post ->
-                            ProjectMainContent(
-                                projectImages = post.images,
-                                projectTitle = post.title
-                            )
-                        }
-                        if (state.isPaging) {
+                        if (state.posts.isEmpty()) {
                             item {
+                                EmptyPostsComponent(
+                                    image = R.drawable.empty_cat,
+                                    modifier = Modifier.fillParentMaxSize()
+                                )
+                            }
+                        } else {
+                            items(
+                                state.posts,
+                                key = { it.id }
+                            ) { post ->
+
+                                val cardShape = RoundedCornerShape(16.dp)
+
                                 Box(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentAlignment = Alignment.Center
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(cardShape)
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.outline.copy(
+                                                alpha = 0.35f
+                                            ),
+                                            shape = cardShape
+                                        )
+                                        .padding(10.dp)
                                 ) {
-                                    CircularProgressIndicator()
+                                    ProjectMainContent(
+                                        projectImages = post.images,
+                                        projectTitle = post.title
+                                    )
+                                }
+                            }
+
+                            // Paging indicator remains outside the card border.
+                            if (state.isPaging) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
                                 }
                             }
                         }
@@ -404,19 +436,28 @@ private fun SearchedResult(
                     state = listState,
                     verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
-                    items(result.posts, key = { it.id }) { post ->
-                        PostComponent(
-                            post = post,
-                            showOnSearchResult = true
-                        )
-                    }
-                    if (state.isPaging) {
+                    if (result.posts.isEmpty()) {
                         item {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
+                            EmptyPostsComponent(
+                                image = R.drawable.empty_cat,
+                                modifier = Modifier.fillParentMaxSize()
+                            )
+                        }
+                    } else {
+                        items(result.posts, key = { it.id }) { post ->
+                            PostComponent(
+                                post = post,
+                                showOnSearchResult = true
+                            )
+                        }
+                        if (state.isPaging) {
+                            item {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                             }
                         }
                     }

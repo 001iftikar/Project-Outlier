@@ -1,4 +1,4 @@
-package com.iftikar.outlier.feature.shared.components.shimmer
+package com.iftikar.outlier.core.designsystem.component.shimmer
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -52,11 +53,11 @@ fun rememberShimmerBrush(): Brush {
             highlightColor,
             baseColor
         ),
-        start = androidx.compose.ui.geometry.Offset(
+        start = Offset(
             x = shimmerOffset - 250f,
             y = 0f
         ),
-        end = androidx.compose.ui.geometry.Offset(
+        end = Offset(
             x = shimmerOffset,
             y = 250f
         )

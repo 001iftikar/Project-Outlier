@@ -43,12 +43,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.iftikar.outlier.R
+import com.iftikar.outlier.core.designsystem.component.post.EmptyPostsComponent
 import com.iftikar.outlier.core.designsystem.theme.LocalSpacing
 import com.iftikar.outlier.feature.home.components.bars.HomeTopBar
 import com.iftikar.outlier.feature.home.components.comment.CommentsBottomSheet
 import com.iftikar.outlier.feature.home.components.post.PostFeedShimmer
 import com.iftikar.outlier.feature.shared.DrawerUserInfoState
-import com.iftikar.outlier.feature.shared.components.post.PostComponent
+import com.iftikar.outlier.core.designsystem.component.post.PostComponent
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -253,22 +255,32 @@ fun HomeScreen(
                             state = listState,
                             verticalArrangement = Arrangement.spacedBy(18.dp)
                         ) {
-                            items(
-                                state.posts,
-                                key = { it.id }
-                            ) { post ->
-                                PostComponent(
-                                    post = post,
-                                    onPostReactClick = postReact
-                                )
-                            }
-                            if (state.isPaging) {
+                            if (state.posts.isEmpty()) {
                                 item {
-                                    Box(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator()
+                                    EmptyPostsComponent(
+                                        image = R.drawable.empty_cat,
+                                        modifier = Modifier.fillParentMaxSize()
+                                    )
+                                }
+
+                            } else {
+                                items(
+                                    state.posts,
+                                    key = { it.id }
+                                ) { post ->
+                                    PostComponent(
+                                        post = post,
+                                        onPostReactClick = postReact
+                                    )
+                                }
+                                if (state.isPaging) {
+                                    item {
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator()
+                                        }
                                     }
                                 }
                             }

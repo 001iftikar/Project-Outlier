@@ -1,4 +1,4 @@
-package com.iftikar.outlier.feature.shared.components.shimmer
+package com.iftikar.outlier.core.designsystem.component.shimmer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

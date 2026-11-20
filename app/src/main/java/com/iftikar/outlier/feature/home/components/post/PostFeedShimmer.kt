@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.iftikar.outlier.feature.shared.components.shimmer.ShimmerBlock
-import com.iftikar.outlier.feature.shared.components.shimmer.rememberShimmerBrush
+import com.iftikar.outlier.core.designsystem.component.shimmer.ShimmerBlock
+import com.iftikar.outlier.core.designsystem.component.shimmer.rememberShimmerBrush
 
 @Composable
 fun PostFeedShimmer(

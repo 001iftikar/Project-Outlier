@@ -12,5 +12,6 @@ data class Post(
     val postAuthor: PostAuthor,
     val likesCount: Int,
     val commentsCount: Int,
-    val likedByCurrentUser: Boolean
+    val likedByCurrentUser: Boolean,
+    val createdAt: String
 )

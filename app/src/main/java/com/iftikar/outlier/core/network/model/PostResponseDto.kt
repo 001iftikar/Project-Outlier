@@ -43,7 +43,8 @@ fun PostResponse.asPost(): Post {
         postAuthor = user.asPostAuthor(),
         likesCount = likesCount,
         commentsCount = commentsCount,
-        likedByCurrentUser = likedByCurrentUser
+        likedByCurrentUser = likedByCurrentUser,
+        createdAt = createdAt
     )
 }
 
